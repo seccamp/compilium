@@ -52,7 +52,7 @@ dbg_unittest_% : compilium_dbg
 
 format:
 	clang-format -i $(SRCS) $(HEADERS)
-	make -C examples format
+	# make -C examples format
 
 commit:
 	make format

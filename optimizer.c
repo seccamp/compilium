@@ -1,7 +1,6 @@
 #include "compilium.h"
 
-void Optimize(struct Node *ast, struct SymbolEntry *ctx) {
-  (void)ctx;  // Just ignore unused warning
+void Optimize(struct Node *ast) {
   fputs("Optimization begin\n", stderr);
   // Show the base AST
   fprintf(stderr, "AST before optimization:\n");

@@ -285,12 +285,12 @@ int main(int argc, char *argv[]) {
   PrintASTNode(ast);
   fputc('\n', stderr);
 
+  Optimize(ast);
+
   fputs("Analyze begin\n", stderr);
   struct SymbolEntry *ctx = Analyze(ast);
   PrintASTNode(ast);
   fputc('\n', stderr);
-
-  Optimize(ast, ctx);
 
   Generate(ast, ctx);
   return 0;
