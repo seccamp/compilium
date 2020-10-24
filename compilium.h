@@ -212,6 +212,9 @@ const char *ReadFile(FILE *fp);
 // @generate.c
 void Generate(struct Node *ast, struct SymbolEntry *);
 
+// @optimizer.c
+void Optimize(struct Node *ast, struct SymbolEntry *);
+
 // @parser.c
 extern struct Node *toplevel_names;
 void InitParser(struct Node **);

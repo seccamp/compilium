@@ -290,6 +290,8 @@ int main(int argc, char *argv[]) {
   PrintASTNode(ast);
   fputc('\n', stderr);
 
+  Optimize(ast, ctx);
+
   Generate(ast, ctx);
   return 0;
 }
