@@ -65,10 +65,11 @@ void Optimize(struct Node *ast) {
       if (!expr || expr->type != kASTExpr) {
         continue;
       }
-
+      printf("first %s %d\n", expr->op->begin, expr->type);
       if (ConstantPropagation(expr) == true) {
         continue;
       }
+      printf("second %d\n", expr->type);
 
     }
   }
