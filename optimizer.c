@@ -57,20 +57,26 @@ void Optimize(struct Node *ast) {
     assert(IsASTList(n->func_body));
     for (int k = 0; k < GetSizeOfList(n->func_body); k++) {
       struct Node *toplevel_expr = GetNodeAt(n->func_body, k);
-      if (toplevel_expr->type != kASTExprStmt) {
-        continue;
-      }
-      // for each ExprStmt
-      struct Node *expr = toplevel_expr->left;
-      if (!expr || expr->type != kASTExpr) {
-        continue;
-      }
-      printf("first %s %d\n", expr->op->begin, expr->type);
-      if (ConstantPropagation(expr) == true) {
-        continue;
-      }
-      printf("second %d\n", expr->type);
 
+      printf("Z %d\n", toplevel_expr->type);
+
+
+      if (toplevel_expr->type == kASTExprStmt) {
+        struct Node *expr = toplevel_expr->left;
+        // for each ExprStmt
+        printf("A %1s %d\n", expr->op->begin, expr->type);
+        if (!expr || expr->type != kASTExpr) {
+          continue;
+        }
+        printf("B %1s %d\n", expr->op->begin, expr->type);
+        if (ConstantPropagation(expr) == true) {
+          continue;
+        }
+        printf("C %1s %d\n", expr->op->begin, expr->type);
+      } else if (toplevel_expr->type == kASTJumpStmt) {
+        if(toplevel_expr->left)  Optimize(toplevel_expr->left);
+        if(toplevel_expr->right) Optimize(toplevel_expr->right);
+      }
     }
   }
 
