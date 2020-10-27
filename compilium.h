@@ -295,6 +295,7 @@ void InsertTokensWithIdentReplace(struct Node *seq, struct Node *rep_list);
 struct Node **RemoveDelimiterTokens(struct Node **);
 
 // @tokenizer.c
+struct Node *CreateNextToken(const char *p, const char *src, int *line);
 struct Node *CreateToken(const char *input);
 struct Node *Tokenize(const char *input);
 

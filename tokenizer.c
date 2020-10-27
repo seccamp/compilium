@@ -1,6 +1,6 @@
 #include "compilium.h"
 
-static struct Node *CreateNextToken(const char *p, const char *src, int *line) {
+struct Node *CreateNextToken(const char *p, const char *src, int *line) {
   assert(line);
   if (!*p) return NULL;
   if (*p == ' ') {
