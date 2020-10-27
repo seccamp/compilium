@@ -1,5 +1,10 @@
 #include "compilium.h"
 
+void ConstantPropagation(){
+      if (strncmp(expr->op->begin, "+", expr->op->length) != 0) {
+        return 0;
+      }
+}
 void Optimize(struct Node *ast) {
   // Show the base AST
   fprintf(stderr, "AST before optimization:\n");
@@ -27,9 +32,7 @@ void Optimize(struct Node *ast) {
       if (!expr || expr->type != kASTExpr) {
         continue;
       }
-      if (strncmp(expr->op->begin, "+", expr->op->length) != 0) {
-        continue;
-      }
+
       int left_var = strtol(expr->left->op->begin, NULL, 10);
       int right_var = strtol(expr->right->op->begin, NULL, 10);
       PrintASTNode(expr);
@@ -52,3 +55,5 @@ void Optimize(struct Node *ast) {
   PrintASTNode(ast);
   fputs("Optimization end\n", stderr);
 }
+
+
