@@ -74,8 +74,12 @@ void Optimize(struct Node *ast) {
         }
         printf("C %1s %d\n", expr->op->begin, expr->type);
       } else if (toplevel_expr->type == kASTJumpStmt) {
-        if(toplevel_expr->left)  Optimize(toplevel_expr->left);
-        if(toplevel_expr->right) Optimize(toplevel_expr->right);
+        if(toplevel_expr->left) {
+          if (ConstantPropagation(toplevel_expr->left));
+      }
+        if(toplevel_expr->right) {
+          if (ConstantPropagation(toplevel_expr->right));
+      }
       }
     }
   }
