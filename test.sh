@@ -5,6 +5,7 @@ function test_result {
   expected="$2"
   expected_stdout="$3"
   testname="$4"
+  echo "input : " ${input}
   printf "$expected_stdout" > expected.stdout
   ./compilium --target-os `uname` <<< "$input" > out.S || { \
     echo "$input" > failcase.c; \

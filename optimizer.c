@@ -1,12 +1,23 @@
 #include "compilium.h"
 
 
+
+struct Hoge{
+  char op[4];
+  int (*func)(int, int);
+} Hogehoge{
+  {"+", adddd}
+}
+
 // ConstantPropagation は式を受け取り，左右が定数値であれば，
 // 定数畳み込みを行い，式を定数式に書き換える。
 //
-// @param expr: 式を表すノード。
+// @param expr: 式を表すノード。NULL なら何もせず 0 を返す。
 // @return 式が定数式に書き換わったら true
 int ConstantPropagation(struct Node *expr){
+  if (!expr || expr->type != kASTExpr) {
+    return 0;
+  }
   if (strncmp(expr->op->begin, "+", expr->op->length) == 0) {
     int left_var = strtol(expr->left->op->begin, NULL, 10);
     int right_var = strtol(expr->right->op->begin, NULL, 10);
@@ -22,7 +33,9 @@ int ConstantPropagation(struct Node *expr){
     expr->left = NULL;
     expr->right = NULL;
     PrintASTNode(expr);
-  } else if (strncmp(expr->op->begin, "-", expr->op->length) == 0) {
+  } 
+  /*
+  else if (strncmp(expr->op->begin, "-", expr->op->length) == 0) {
     int left_var = strtol(expr->left->op->begin, NULL, 10);
     int right_var = strtol(expr->right->op->begin, NULL, 10);
     PrintASTNode(expr);
@@ -40,6 +53,7 @@ int ConstantPropagation(struct Node *expr){
   } else {
     return false;
   }
+  //*/
   
   return true;
 }
@@ -53,20 +67,16 @@ int OptimizeExpr(struct Node *expr) {
     return 0;
   }
 
+  fprintf(stderr, "OptimizeExpr:\n");
+  PrintASTNode(expr);
+
   OptimizeExpr(expr->left);
   OptimizeExpr(expr->right);
 
   // left と right が定数なら，ここで定数の計算
-  ConstantPropagation();
-
+  ConstantPropagation(expr);
   return 1;
 }
-
-
-{
-  /* data */
-};
-
 
 void Optimize(struct Node *ast) {
   // Show the base AST
@@ -99,17 +109,17 @@ void Optimize(struct Node *ast) {
           continue;
         }
         printf("B %1s %d\n", expr->op->begin, expr->type);
-        if (ConstantPropagation(expr) == true) {
+        if (OptimizeExpr(expr) == true) {
           continue;
         }
         printf("C %1s %d\n", expr->op->begin, expr->type);
       } else if (toplevel_expr->type == kASTJumpStmt) {
         if(toplevel_expr->left) {
-          ConstantPropagation(toplevel_expr->left);
-      }
+          OptimizeExpr(toplevel_expr->left);
+        }
         if(toplevel_expr->right) {
-          ConstantPropagation(toplevel_expr->right);
-      }
+          OptimizeExpr(toplevel_expr->right);
+        }
       }
     }
   }
