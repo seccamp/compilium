@@ -39,7 +39,15 @@ int ConstantPropagation(struct Node *expr){
   return true;
 }
 
-void OptimizeExpr(struct Node *expr){
+// if expr is null, return 0
+int OptimizeExpr(struct Node *expr) {
+  if (!expr || expr->type != kASTExpr) {
+    return 0;
+  }
+
+  OptimizeExpr(expr->left);
+  OptimizeExpr(expr->right);
+
   return 1;
 }
 
