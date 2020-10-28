@@ -1,6 +1,11 @@
 #include "compilium.h"
 
 
+// ConstantPropagation は式を受け取り，左右が定数値であれば，
+// 定数畳み込みを行い，式を定数式に書き換える。
+//
+// @param expr: 式を表すノード。
+// @return 式が定数式に書き換わったら true
 int ConstantPropagation(struct Node *expr){
   if (strncmp(expr->op->begin, "+", expr->op->length) == 0) {
     int left_var = strtol(expr->left->op->begin, NULL, 10);
@@ -39,7 +44,10 @@ int ConstantPropagation(struct Node *expr){
   return true;
 }
 
-// if expr is null, return 0
+// OptimizeExpr は式を受け取って定数伝播の最適化を施す。
+//
+// @param expr:  式を表すノード。NULL なら何もせず 0 を返す。
+// @return 定数伝播最適化が行われたら 1
 int OptimizeExpr(struct Node *expr) {
   if (!expr || expr->type != kASTExpr) {
     return 0;
@@ -47,6 +55,9 @@ int OptimizeExpr(struct Node *expr) {
 
   OptimizeExpr(expr->left);
   OptimizeExpr(expr->right);
+
+  // left と right が定数なら，ここで定数の計算
+  ConstantPropagation();
 
   return 1;
 }
