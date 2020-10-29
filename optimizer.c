@@ -2,6 +2,12 @@
 
 
 
+struct Hoge{
+  char op[4];
+  int (*func)(int, int);
+} Hogehoge{
+  {"+", adddd}
+}
 
 // ConstantPropagation は式を受け取り，左右が定数値であれば，
 // 定数畳み込みを行い，式を定数式に書き換える。
@@ -10,38 +16,24 @@
 // @return 式が定数式に書き換わったら true
 int ConstantPropagation(struct Node *expr){
   if (!expr || expr->type != kASTExpr) {
-    return false;
+    return 0;
   }
-  if( !expr->left || !expr->right) {
-    return false;
-  }
-  int left_var = strtol(expr->left->op->begin, NULL, 10);
-  int right_var = strtol(expr->right->op->begin, NULL, 10);
-  PrintASTNode(expr);
-
-  char s[12];
-
   if (strncmp(expr->op->begin, "+", expr->op->length) == 0) {
-    snprintf(s, sizeof(s), "%d", left_var + right_var);    
-  } else if (strncmp(expr->op->begin, "-", expr->op->length) == 0) {
-    snprintf(s, sizeof(s), "%d", left_var - right_var);    
-  } else if (strncmp(expr->op->begin, "*", expr->op->length) == 0) {
-    snprintf(s, sizeof(s), "%d", left_var * right_var);    
-  } else {
-    return false;
-  }
-  
-  fprintf(stderr, "%d %.*s %d = %s\n", left_var, expr->op->length, expr->op->begin, right_var, s);
-
-    
-  fprintf(stderr, "s: %s\n", s);
-  char *ds = strdup(s);  // duplicate because s is allocated on the stack
-  int line = 0;
-  expr->op = CreateNextToken(ds, ds, &line);  // use ds here
-  expr->left = NULL;
-  expr->right = NULL;
-  PrintASTNode(expr);
-  
+    int left_var = strtol(expr->left->op->begin, NULL, 10);
+    int right_var = strtol(expr->right->op->begin, NULL, 10);
+    PrintASTNode(expr);
+    fprintf(stderr, "%d + %d = %d\n", left_var, right_var,
+            left_var + right_var);
+    char s[12];
+    snprintf(s, sizeof(s), "%d", left_var + right_var);
+    fprintf(stderr, "s: %s\n", s);
+    char *ds = strdup(s);  // duplicate because s is allocated on the stack
+    int line = 0;
+    expr->op = CreateNextToken(ds, ds, &line);  // use ds here
+    expr->left = NULL;
+    expr->right = NULL;
+    PrintASTNode(expr);
+  } 
   /*
   else if (strncmp(expr->op->begin, "-", expr->op->length) == 0) {
     int left_var = strtol(expr->left->op->begin, NULL, 10);
