@@ -23,7 +23,7 @@ int ConstantPropagation(struct Node *expr){
 
   int left_var = strtol(expr->left->op->begin, NULL, 10);
   int right_var = strtol(expr->right->op->begin, NULL, 10);
-  PrintASTNode(expr);
+  // PrintASTNode(expr);
 
   char s[12];
 
@@ -50,7 +50,7 @@ int ConstantPropagation(struct Node *expr){
   expr->op = CreateNextToken(ds, ds, &line);  // use ds here
   expr->left = NULL;
   expr->right = NULL;
-  PrintASTNode(expr); 
+  // PrintASTNode(expr); 
   
   return true;
 }
@@ -68,11 +68,17 @@ int OptimizeExpr(struct Node *expr) {
   }
 
   fprintf(stderr, "OptimizeExpr:\n");
-  PrintASTNode(expr);
+  // PrintASTNode(expr);
 
   OptimizeExpr(expr->left);
   OptimizeExpr(expr->right);
-  OptimizeExpr(expr->arg_expr_list);
+  if (expr->arg_expr_list) {
+    assert(IsASTList(expr->arg_expr_list));
+    for (int i = 0; i < GetSizeOfList(expr->arg_expr_list); i++) {
+      struct Node *n = GetNodeAt(expr->arg_expr_list, i);
+      OptimizeExpr(n);
+    }
+  }
 
   // left と right が定数なら，ここで定数の計算
   ConstantPropagation(expr);
@@ -83,7 +89,7 @@ int OptimizeExpr(struct Node *expr) {
 void Optimize(struct Node *ast) {
   // Show the base AST
   fprintf(stderr, "AST before optimization:\n");
-  PrintASTNode(ast);
+  // PrintASTNode(ast);
 
   //fputs("Optimization begin\n", stderr);
   // do something cool here...
@@ -136,7 +142,7 @@ void Optimize(struct Node *ast) {
 
   // Show the result
   fprintf(stderr, "AST after optimization:\n");
-  PrintASTNode(ast);
+  // PrintASTNode(ast);
   //fputs("Optimization end\n", stderr);
 }
 
