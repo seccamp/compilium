@@ -12,6 +12,12 @@ int ConstantPropagation(struct Node *expr){
   if( !expr->left || !expr->right) {
     return false;
   }
+  fprintf(stderr, "Inter constantPropagation: %d %d\n", expr->left->op->token_type, expr->right->op->token_type);
+
+  if ( expr->left->op->token_type != kTokenIntegerConstant || expr->right->op->token_type != kTokenIntegerConstant ){
+    return false;
+  }
+
   int left_var = strtol(expr->left->op->begin, NULL, 10);
   int right_var = strtol(expr->right->op->begin, NULL, 10);
   PrintASTNode(expr);
