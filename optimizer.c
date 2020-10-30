@@ -6,10 +6,16 @@
 // @param expr: 式を表すノード。NULL なら何もせず 0 を返す。
 // @return 式が定数式に書き換わったら true
 int ConstantPropagation(struct Node *expr){
+
   if (!expr || expr->type != kASTExpr) {
     return false;
   }
+  fprintf(stderr, "Inter constantPropagation B\n");
+
   if( !expr->left || !expr->right) {
+    return false;
+  }
+  if( !expr->left->op || !expr->right->op) {
     return false;
   }
   fprintf(stderr, "Inter constantPropagation: %d %d\n", expr->left->op->token_type, expr->right->op->token_type);
@@ -87,9 +93,12 @@ int OptimizeExpr(struct Node *expr) {
 
   OptimizeExpr(expr->left);
   OptimizeExpr(expr->right);
+  fprintf(stderr, "OptimizeExprC\n");
 
   // left と right が定数なら，ここで定数の計算
   ConstantPropagation(expr);
+  fprintf(stderr, "OptimizeExprD\n");
+
   return 1;
 }
 
@@ -98,7 +107,7 @@ void Optimize(struct Node *ast) {
   fprintf(stderr, "AST before optimization:\n");
   PrintASTNode(ast);
 
-  fputs("Optimization begin\n", stderr);
+  //fputs("Optimization begin\n", stderr);
   // do something cool here...
 
   // Calculate constant expression on toplevel return
@@ -112,22 +121,15 @@ void Optimize(struct Node *ast) {
     assert(IsASTList(n->func_body));
     for (int k = 0; k < GetSizeOfList(n->func_body); k++) {
       struct Node *toplevel_expr = GetNodeAt(n->func_body, k);
-
-      printf("Z %d\n", toplevel_expr->type);
-
-
       if (toplevel_expr->type == kASTExprStmt) {
         struct Node *expr = toplevel_expr->left;
         // for each ExprStmt
-        printf("A %1s %d\n", expr->op->begin, expr->type);
         if (!expr || expr->type != kASTExpr) {
           continue;
         }
-        printf("B %1s %d\n", expr->op->begin, expr->type);
         if (OptimizeExpr(expr) == true) {
           continue;
         }
-        printf("C %1s %d\n", expr->op->begin, expr->type);
       } else if (toplevel_expr->type == kASTJumpStmt) {
         if(toplevel_expr->left) {
           OptimizeExpr(toplevel_expr->left);
@@ -142,7 +144,7 @@ void Optimize(struct Node *ast) {
   // Show the result
   fprintf(stderr, "AST after optimization:\n");
   PrintASTNode(ast);
-  fputs("Optimization end\n", stderr);
+  //fputs("Optimization end\n", stderr);
 }
 
 
