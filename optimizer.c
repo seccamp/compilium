@@ -1,8 +1,5 @@
 #include "compilium.h"
 
-
-
-
 // ConstantPropagation は式を受け取り，左右が定数値であれば，
 // 定数畳み込みを行い，式を定数式に書き換える。
 //
@@ -26,7 +23,11 @@ int ConstantPropagation(struct Node *expr){
   } else if (strncmp(expr->op->begin, "-", expr->op->length) == 0) {
     snprintf(s, sizeof(s), "%d", left_var - right_var);    
   } else if (strncmp(expr->op->begin, "*", expr->op->length) == 0) {
-    snprintf(s, sizeof(s), "%d", left_var * right_var);    
+    snprintf(s, sizeof(s), "%d", left_var * right_var);
+  } else if (strncmp(expr->op->begin, "/", expr->op->length) == 0) {
+    snprintf(s, sizeof(s), "%d", left_var / right_var);
+  } else if (strncmp(expr->op->begin, "%", expr->op->length) == 0) {
+    snprintf(s, sizeof(s), "%d", left_var % right_var);
   } else {
     return false;
   }
