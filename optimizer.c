@@ -104,6 +104,8 @@ void Optimize(struct Node *ast) {
         if (OptimizeExpr(expr) == true) {
           continue;
         }
+      } else if (toplevel_expr->type == kASTExprFuncCall) {
+        // TODO
       } else if (toplevel_expr->type == kASTJumpStmt) {
         if(toplevel_expr->left) {
           OptimizeExpr(toplevel_expr->left);
