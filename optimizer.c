@@ -60,7 +60,10 @@ int ConstantPropagation(struct Node *expr){
 // @param expr:  式を表すノード。NULL なら何もせず 0 を返す。
 // @return 定数伝播最適化が行われたら 1
 int OptimizeExpr(struct Node *expr) {
-  if (!expr || expr->type != kASTExpr) {
+  if (!expr) {
+    return 0;
+  }
+  if (expr->type != kASTExpr && expr->type != kASTExprFuncCall) {
     return 0;
   }
 
@@ -69,6 +72,7 @@ int OptimizeExpr(struct Node *expr) {
 
   OptimizeExpr(expr->left);
   OptimizeExpr(expr->right);
+  OptimizeExpr(expr->arg_expr_list);
 
   // left と right が定数なら，ここで定数の計算
   ConstantPropagation(expr);
@@ -95,25 +99,38 @@ void Optimize(struct Node *ast) {
     assert(IsASTList(n->func_body));
     for (int k = 0; k < GetSizeOfList(n->func_body); k++) {
       struct Node *toplevel_expr = GetNodeAt(n->func_body, k);
-      if (toplevel_expr->type == kASTExprStmt) {
-        struct Node *expr = toplevel_expr->left;
-        // for each ExprStmt
-        if (!expr || expr->type != kASTExpr) {
-          continue;
-        }
-        if (OptimizeExpr(expr) == true) {
-          continue;
-        }
-      } else if (toplevel_expr->type == kASTExprFuncCall) {
-        // TODO
-      } else if (toplevel_expr->type == kASTJumpStmt) {
-        if(toplevel_expr->left) {
-          OptimizeExpr(toplevel_expr->left);
-        }
-        if(toplevel_expr->right) {
-          OptimizeExpr(toplevel_expr->right);
-        }
+      switch (toplevel_expr->type) {
+        case kASTExprStmt:
+        case kASTJumpStmt:
+          if(toplevel_expr->left) {
+            OptimizeExpr(toplevel_expr->left);
+          }
+          if(toplevel_expr->right) {
+            OptimizeExpr(toplevel_expr->right);
+          }
+          break;
+        default:
+          break;
       }
+      // if (toplevel_expr->type == kASTExprStmt) {
+      //   struct Node *expr = toplevel_expr->left;
+      //   // for each ExprStmt
+      //   if (!expr || expr->type != kASTExpr) {
+      //     continue;
+      //   }
+      //   if (OptimizeExpr(expr) == true) {
+      //     continue;
+      //   }
+      // } else if (toplevel_expr->type == kASTExprFuncCall) {
+
+      // } else if (toplevel_expr->type == kASTJumpStmt) {
+      //   if(toplevel_expr->left) {
+      //     OptimizeExpr(toplevel_expr->left);
+      //   }
+      //   if(toplevel_expr->right) {
+      //     OptimizeExpr(toplevel_expr->right);
+      //   }
+      // }
     }
   }
 
