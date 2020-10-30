@@ -10,15 +10,12 @@ int ConstantPropagation(struct Node *expr){
   if (!expr || expr->type != kASTExpr) {
     return false;
   }
-  fprintf(stderr, "Inter constantPropagation B\n");
-
   if( !expr->left || !expr->right) {
     return false;
   }
   if( !expr->left->op || !expr->right->op) {
     return false;
   }
-  fprintf(stderr, "Inter constantPropagation: %d %d\n", expr->left->op->token_type, expr->right->op->token_type);
 
   if ( expr->left->op->token_type != kTokenIntegerConstant || expr->right->op->token_type != kTokenIntegerConstant ){
     return false;
@@ -53,28 +50,7 @@ int ConstantPropagation(struct Node *expr){
   expr->op = CreateNextToken(ds, ds, &line);  // use ds here
   expr->left = NULL;
   expr->right = NULL;
-  PrintASTNode(expr);
-  
-  /*
-  else if (strncmp(expr->op->begin, "-", expr->op->length) == 0) {
-    int left_var = strtol(expr->left->op->begin, NULL, 10);
-    int right_var = strtol(expr->right->op->begin, NULL, 10);
-    PrintASTNode(expr);
-    fprintf(stderr, "%d - %d = %d\n", left_var, right_var,
-            left_var + right_var);
-    char s[12];
-    snprintf(s, sizeof(s), "%d", left_var - right_var);
-    fprintf(stderr, "s: %s\n", s);
-    char *ds = strdup(s);  // duplicate because s is allocated on the stack
-    int line = 0;
-    expr->op = CreateNextToken(ds, ds, &line);  // use ds here
-    expr->left = NULL;
-    expr->right = NULL;
-    PrintASTNode(expr);
-  } else {
-    return false;
-  }
-  //*/
+  PrintASTNode(expr); 
   
   return true;
 }
@@ -93,11 +69,9 @@ int OptimizeExpr(struct Node *expr) {
 
   OptimizeExpr(expr->left);
   OptimizeExpr(expr->right);
-  fprintf(stderr, "OptimizeExprC\n");
 
   // left と right が定数なら，ここで定数の計算
   ConstantPropagation(expr);
-  fprintf(stderr, "OptimizeExprD\n");
 
   return 1;
 }

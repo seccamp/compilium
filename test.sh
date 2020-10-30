@@ -144,7 +144,23 @@ int main() {
 EOS
 `" 0 'C'
 
+test_stmt_result 'return 3 + 5 + 7;' 15
+
+test_stmt_result 'return 3 + 5 * 7;' 38
+
+test_stmt_result 'return 3 * 5 / 7;' 2
+
+test_stmt_result 'return 3 * 5 % 7;' 1
+
 test_stmt_result 'int a; int b; int c; a = 3; b = 5; c = 7; return a + b + c;' 15
+
+test_stmt_result 'int a; int b; int c; a = 3; b = 5; c = 7; return a + b * c;' 38
+
+test_stmt_result 'int a; int b; int c; a = 3; b = 5; c = 7; return a * b / c;' 2
+
+test_stmt_result 'int a; int b; int c; a = 3; b = 5; c = 7; return a * b % c;' 1
+
+test_stmt_result 'int a;a = 3; return 3 + 5 + a + 2 * 5;' 21
 
 # Non-printable
 test_expr_result ' 0 ' 0
