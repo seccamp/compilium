@@ -161,6 +161,15 @@ static void PrintPadding(int depth) {
   }
 }
 
+static void PrintASTNodeSub(struct Node *n, int depth);
+static void PrintOptionalAttr(const char *name, struct Node *attr, int depth) {
+  if (!attr) {
+    return;
+  }
+  fprintf(stderr, ", %s=", name);
+  PrintASTNodeSub(attr, depth);
+}
+
 static void PrintASTNodeSub(struct Node *n, int depth) {
   if (!n) {
     fprintf(stderr, "(null)");
@@ -185,46 +194,55 @@ static void PrintASTNodeSub(struct Node *n, int depth) {
     PrintPadding(depth);
     fprintf(stderr, "]");
     return;
-  } else if (n->type == kASTStructSpec) {
+  }
+  if (n->type == kASTStructSpec) {
     fprintf(stderr, "StructSpec: ");
     PrintASTNodeSub(n->struct_member_dict, depth);
     return;
-  } else if (n->type == kASTKeyValue) {
+  }
+  if (n->type == kASTKeyValue) {
     fprintf(stderr, "%s: ", n->key);
     PrintASTNodeSub(n->value, depth);
     return;
-  } else if (n->type == kNodeStructMember) {
+  }
+  if (n->type == kNodeStructMember) {
     fprintf(stderr, "Member +%d: ", n->struct_member_ent_ofs);
     PrintASTNodeSub(n->struct_member_ent_type, depth);
     return;
-  } else if (n->type == kNodeMacroReplacement) {
+  }
+  if (n->type == kNodeMacroReplacement) {
     fprintf(stderr, "MacroReplacement<args: ");
     PrintASTNodeSub(n->arg_expr_list, depth);
     fprintf(stderr, ", rep: ");
     PrintTokenSequence(n->value);
     fprintf(stderr, ">");
     return;
-  } else if (n->type == kTypeBase) {
+  }
+  if (n->type == kTypeBase) {
     PrintTokenStrToFile(n->op, stderr);
     return;
-  } else if (n->type == kTypeLValue) {
+  }
+  if (n->type == kTypeLValue) {
     fprintf(stderr, "lvalue<");
     PrintASTNodeSub(n->right, depth);
     fprintf(stderr, ">");
     return;
-  } else if (n->type == kTypePointer) {
+  }
+  if (n->type == kTypePointer) {
     fprintf(stderr, "pointer_of<");
     PrintASTNodeSub(n->right, depth);
     fprintf(stderr, ">");
     return;
-  } else if (n->type == kTypeFunction) {
+  }
+  if (n->type == kTypeFunction) {
     fprintf(stderr, "function<returns: ");
     PrintASTNodeSub(n->left, depth);
     fprintf(stderr, ", args: ");
     PrintASTNodeSub(n->right, depth);
     fprintf(stderr, ">");
     return;
-  } else if (n->type == kTypeStruct) {
+  }
+  if (n->type == kTypeStruct) {
     fprintf(stderr, "struct<tag: ");
     PrintASTNodeSub(n->tag, depth);
     if (!n->type_struct_spec) {
@@ -232,21 +250,24 @@ static void PrintASTNodeSub(struct Node *n, int depth) {
     }
     fprintf(stderr, ">");
     return;
-  } else if (n->type == kTypeArray) {
+  }
+  if (n->type == kTypeArray) {
     fprintf(stderr, "array_of<");
     PrintASTNodeSub(n->type_array_type_of, depth);
     fprintf(stderr, ">[");
     PrintASTNodeSub(n->type_array_index_decl, depth);
     fprintf(stderr, "]");
     return;
-  } else if (n->type == kTypeAttrIdent) {
+  }
+  if (n->type == kTypeAttrIdent) {
     fputc('`', stderr);
     PrintTokenStrToFile(n->left, stderr);
     fputc('`', stderr);
     fprintf(stderr, " has a type: ");
     PrintASTNodeSub(n->right, depth);
     return;
-  } else if (n->type == kASTFuncDef) {
+  }
+  if (n->type == kASTFuncDef) {
     fprintf(stderr, "FuncDef ");
     PrintASTNodeSub(n->func_name_token, depth);
     fprintf(stderr, " : ");
@@ -258,11 +279,13 @@ static void PrintASTNodeSub(struct Node *n, int depth) {
     PrintPadding(depth);
     fprintf(stderr, "}");
     return;
-  } else if (n->type == kASTExprStmt) {
+  }
+  if (n->type == kASTExprStmt) {
     PrintASTNodeSub(n->left, depth);
     fprintf(stderr, ";");
     return;
-  } else if (n->type == kASTExprFuncCall) {
+  }
+  if (n->type == kASTExprFuncCall) {
     fprintf(stderr, "FuncCall<");
     PrintASTNodeSub(n->func_expr, depth);
     fprintf(stderr, ">(");
@@ -270,29 +293,127 @@ static void PrintASTNodeSub(struct Node *n, int depth) {
     fprintf(stderr, ")");
     return;
   }
-  fprintf(stderr, "(op=");
-  if (n->op) PrintTokenBrief(n->op);
-  if (n->expr_type) {
-    fprintf(stderr, ":");
-    PrintASTNodeSub(n->expr_type, depth + 1);
+  if (n->type == kASTJumpStmt) {
+    fprintf(stderr, "JumpStmt(op=");
+    PrintTokenBrief(n->op);
+    if (n->right) {
+      fprintf(stderr, ", R=");
+      PrintASTNodeSub(n->right, depth + 1);
+    }
+    fprintf(stderr, ")");
+    return;
   }
-  if (n->reg) fprintf(stderr, " reg: %d", n->reg);
-  if (n->cond) {
-    fprintf(stderr, " cond=");
-    PrintASTNodeSub(n->cond, depth + 1);
+  if (n->type == kASTForStmt) {
+    fprintf(stderr, "ForStmt(op=");
+    PrintTokenBrief(n->op);
+    PrintOptionalAttr("init", n->init, depth);
+    PrintOptionalAttr("cond", n->cond, depth);
+    PrintOptionalAttr("updt", n->updt, depth);
+    PrintOptionalAttr("body", n->body, depth);
+    fprintf(stderr, ")");
+    return;
   }
-  if (n->left) {
-    fprintf(stderr, " L=");
-    PrintASTNodeSub(n->left, depth + 1);
+  if (n->type == kASTWhileStmt) {
+    fprintf(stderr, "WhileStmt(op=");
+    PrintTokenBrief(n->op);
+    PrintOptionalAttr("cond", n->init, depth);
+    PrintOptionalAttr("body", n->body, depth);
+    fprintf(stderr, ")");
+    return;
   }
-  if (n->right) {
-    fprintf(stderr, " R=");
-    PrintASTNodeSub(n->right, depth + 1);
+  if (n->type == kASTDecl) {
+    fprintf(stderr, "ASTDecl(op=");
+    PrintASTNodeSub(n->op, depth);
+    PrintOptionalAttr("right", n->right, depth);
+    fprintf(stderr, ")");
+    return;
   }
-  fprintf(stderr, ")");
+  if (n->type == kASTDecltor) {
+    fprintf(stderr, "ASTDecltor(left=");
+    PrintASTNodeSub(n->left, depth);
+    PrintOptionalAttr("right", n->right, depth);
+    fprintf(stderr, ")");
+    return;
+  }
+  if (n->type == kASTDirectDecltor) {
+    fprintf(stderr, "ASTDirectDecltor(op=");
+    PrintASTNodeSub(n->op, depth);
+    PrintOptionalAttr("left", n->left, depth);
+    PrintOptionalAttr("right", n->right, depth);
+    fprintf(stderr, ")");
+    return;
+  }
+  if (n->type == kASTSelectionStmt) {
+    fprintf(stderr, "ASTSelectionStmt(op=");
+    PrintASTNodeSub(n->op, depth);
+    PrintOptionalAttr("cond", n->cond, depth);
+    PrintOptionalAttr("true_stmt", n->if_true_stmt, depth);
+    PrintOptionalAttr("else_stmt", n->if_else_stmt, depth);
+    fprintf(stderr, ")");
+    return;
+  }
+  if (n->type == kASTExpr) {
+    fprintf(stderr, "(op=");
+    if (n->op) PrintTokenBrief(n->op);
+    if (n->expr_type) {
+      fprintf(stderr, ":");
+      PrintASTNodeSub(n->expr_type, depth + 1);
+    }
+    if (n->reg) fprintf(stderr, ", reg: %d", n->reg);
+    PrintOptionalAttr("cond", n->cond, depth);
+    PrintOptionalAttr("left", n->left, depth);
+    PrintOptionalAttr("right", n->right, depth);
+    fprintf(stderr, ")");
+    return;
+  }
+  fprintf(stderr, "ASTPrintNotImplemented(type=%d: %s)", n->type,
+          GetASTNodeTypeName(n));
+  assert(false);
 }
 
 void PrintASTNode(struct Node *n) {
   PrintASTNodeSub(n, 0);
   fputc('\n', stderr);
+}
+
+const char *node_type_names[kNodeTypeSize];
+
+void InitNodeTypeNames() {
+  node_type_names[kNodeNone] = "kNodeNone";
+  node_type_names[kNodeToken] = "kNodeToken";
+  node_type_names[kNodeStructMember] = "kNodeStructMember";
+  node_type_names[kNodeMacroReplacement] = "kNodeMacroReplacement";
+  node_type_names[kASTExpr] = "kASTExpr";
+  node_type_names[kASTExprFuncCall] = "kASTExprFuncCall";
+  node_type_names[kASTList] = "kASTList";
+  node_type_names[kASTExprStmt] = "kASTExprStmt";
+  node_type_names[kASTJumpStmt] = "kASTJumpStmt";
+  node_type_names[kASTSelectionStmt] = "kASTSelectionStmt";
+  node_type_names[kASTIdent] = "kASTIdent";
+  node_type_names[kASTDirectDecltor] = "kASTDirectDecltor";
+  node_type_names[kASTDecltor] = "kASTDecltor";
+  node_type_names[kASTDecl] = "kASTDecl";
+  node_type_names[kASTForStmt] = "kASTForStmt";
+  node_type_names[kASTWhileStmt] = "kASTWhileStmt";
+  node_type_names[kASTFuncDef] = "kASTFuncDef";
+  node_type_names[kASTKeyValue] = "kASTKeyValue";
+  node_type_names[kASTLocalVar] = "kASTLocalVar";
+  node_type_names[kASTStructSpec] = "kASTStructSpec";
+  node_type_names[kTypeBase] = "kTypeBase";
+  node_type_names[kTypeLValue] = "kTypeLValue";
+  node_type_names[kTypePointer] = "kTypePointer";
+  node_type_names[kTypeFunction] = "kTypeFunction";
+  node_type_names[kTypeAttrIdent] = "kTypeAttrIdent";
+  node_type_names[kTypeStruct] = "kTypeStruct";
+  node_type_names[kTypeArray] = "kTypeArray";
+}
+
+const char *GetASTNodeTypeName(struct Node *n) {
+  if (!n) {
+    return "null";
+  }
+  if (n->type < 0 || kNodeTypeSize <= n->type || !node_type_names[n->type]) {
+    return "???";
+  }
+  return node_type_names[n->type];
 }

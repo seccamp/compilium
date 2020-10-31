@@ -34,7 +34,7 @@ LLDB_ARGS = -o 'settings set interpreter.prompt-on-quit false' \
 debug_% : ../compilium_dbg %.c
 	lldb \
 		-o 'settings set target.input-path $*.c' $(LLDB_ARGS) \
-		-- ../compilium_dbg --target-os `uname`
+		-- ../compilium_dbg --target-os `uname` -I ../include/
 
 %.host.S : %.c Makefile ../compilium .FORCE
 	$(CC) -S -o $@ $*.c

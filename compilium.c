@@ -268,6 +268,7 @@ const char *ReadFile(FILE *fp) {
 }
 
 int main(int argc, char *argv[]) {
+  InitNodeTypeNames();
   struct Node *replacement_list = ParseCompilerArgs(argc, argv);
   const char *input = ReadFile(stdin);
 

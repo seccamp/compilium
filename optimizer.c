@@ -5,19 +5,19 @@
 //
 // @param expr: 式を表すノード。NULL なら何もせず 0 を返す。
 // @return 式が定数式に書き換わったら true
-int ConstantPropagation(struct Node *expr){
-
+int ConstantPropagation(struct Node *expr) {
   if (!expr || expr->type != kASTExpr) {
     return false;
   }
-  if( !expr->left || !expr->right) {
+  if (!expr->left || !expr->right) {
     return false;
   }
-  if( !expr->left->op || !expr->right->op) {
+  if (!expr->left->op || !expr->right->op) {
     return false;
   }
 
-  if ( expr->left->op->token_type != kTokenIntegerConstant || expr->right->op->token_type != kTokenIntegerConstant ){
+  if (expr->left->op->token_type != kTokenIntegerConstant ||
+      expr->right->op->token_type != kTokenIntegerConstant) {
     return false;
   }
 
@@ -28,9 +28,9 @@ int ConstantPropagation(struct Node *expr){
   char s[12];
 
   if (strncmp(expr->op->begin, "+", expr->op->length) == 0) {
-    snprintf(s, sizeof(s), "%d", left_var + right_var);    
+    snprintf(s, sizeof(s), "%d", left_var + right_var);
   } else if (strncmp(expr->op->begin, "-", expr->op->length) == 0) {
-    snprintf(s, sizeof(s), "%d", left_var - right_var);    
+    snprintf(s, sizeof(s), "%d", left_var - right_var);
   } else if (strncmp(expr->op->begin, "*", expr->op->length) == 0) {
     snprintf(s, sizeof(s), "%d", left_var * right_var);
   } else if (strncmp(expr->op->begin, "/", expr->op->length) == 0) {
@@ -40,18 +40,18 @@ int ConstantPropagation(struct Node *expr){
   } else {
     return false;
   }
-  
-  fprintf(stderr, "%d %.*s %d = %s\n", left_var, expr->op->length, expr->op->begin, right_var, s);
 
-    
+  fprintf(stderr, "%d %.*s %d = %s\n", left_var, expr->op->length,
+          expr->op->begin, right_var, s);
+
   fprintf(stderr, "s: %s\n", s);
   char *ds = strdup(s);  // duplicate because s is allocated on the stack
   int line = 0;
   expr->op = CreateNextToken(ds, ds, &line);  // use ds here
   expr->left = NULL;
   expr->right = NULL;
-  // PrintASTNode(expr); 
-  
+  // PrintASTNode(expr);
+
   return true;
 }
 
@@ -91,7 +91,7 @@ void Optimize(struct Node *ast) {
   fprintf(stderr, "AST before optimization:\n");
   // PrintASTNode(ast);
 
-  //fputs("Optimization begin\n", stderr);
+  // fputs("Optimization begin\n", stderr);
   // do something cool here...
 
   // Calculate constant expression on toplevel return
@@ -108,10 +108,10 @@ void Optimize(struct Node *ast) {
       switch (toplevel_expr->type) {
         case kASTExprStmt:
         case kASTJumpStmt:
-          if(toplevel_expr->left) {
+          if (toplevel_expr->left) {
             OptimizeExpr(toplevel_expr->left);
           }
-          if(toplevel_expr->right) {
+          if (toplevel_expr->right) {
             OptimizeExpr(toplevel_expr->right);
           }
           break;
@@ -143,7 +143,5 @@ void Optimize(struct Node *ast) {
   // Show the result
   fprintf(stderr, "AST after optimization:\n");
   // PrintASTNode(ast);
-  //fputs("Optimization end\n", stderr);
+  // fputs("Optimization end\n", stderr);
 }
-
-

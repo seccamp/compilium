@@ -40,6 +40,8 @@ enum NodeType {
   kTypeAttrIdent,
   kTypeStruct,
   kTypeArray,
+  //
+  kNodeTypeSize
 };
 
 enum TokenType {
@@ -205,6 +207,8 @@ struct Node *CreateTypeArray(struct Node *type_of, struct Node *index_decl);
 struct Node *CreateMacroReplacement(struct Node *args_tokens,
                                     struct Node *to_tokens);
 void PrintASTNode(struct Node *n);
+void InitNodeTypeNames();
+const char *GetASTNodeTypeName(struct Node *n);
 
 // @compilium.c
 const char *ReadFile(FILE *fp);
