@@ -17,7 +17,18 @@ function test_result {
   if [ $expected = $actual ]; then
       diff -u expected.stdout out.stdout \
         && echo "PASS $testname returns $expected" \
-        || { echo "FAIL $testname: stdout diff"; exit 1; }
+				|| {
+				echo "FAIL $testname: stdout diff (actual / expected)";
+							echo "expected:";
+							echo "----";
+							cat expected.stdout;
+							echo "----";
+							echo "actual:";
+							echo "----";
+							cat out.stdout;
+							echo "----";
+							exit 1;
+						}
   else
     echo "FAIL $testname: expected $expected but got $actual"; echo $input > failcase.c; exit 1; 
   fi
@@ -34,6 +45,51 @@ function test_stmt_result {
 function test_src_result {
   test_result "$1" "$2" "$3" "$1"
 }
+
+# pointer addition https://github.com/seccamp/compilium/issues/1
+test_src_result "`cat << EOS
+int printf(const char *, ...);
+int main() {
+  int n = 10;
+  int *a;
+  int b[10];
+  a = b;
+  for (int i = 0; i < n; ++i) {
+    a[i] = i * 16 + i;
+  }
+  for (int i = 0; i < n; ++i) {
+    printf("    a[%d]=0x%08x\n", i, a[i]);
+  }
+  for (int i = 0; i < n; ++i) {
+    printf("*(a + %d)=0x%08x\n", i, *(a + i));  // bug
+  }
+  //printf("\n");
+  return 0;
+}
+EOS
+`" 0 "`cat << EOS
+    a[0]=0x00000000
+    a[1]=0x00000011
+    a[2]=0x00000022
+    a[3]=0x00000033
+    a[4]=0x00000044
+    a[5]=0x00000055
+    a[6]=0x00000066
+    a[7]=0x00000077
+    a[8]=0x00000088
+    a[9]=0x00000099
+*(a + 0)=0x00000000
+*(a + 1)=0x00000011
+*(a + 2)=0x00000022
+*(a + 3)=0x00000033
+*(a + 4)=0x00000044
+*(a + 5)=0x00000055
+*(a + 6)=0x00000066
+*(a + 7)=0x00000077
+*(a + 8)=0x00000088
+*(a + 9)=0x00000099\n
+EOS
+`"
 
 # nested func call with args
 test_src_result "`cat << EOS
@@ -57,7 +113,7 @@ int main() {
   return f();
 }
 EOS
-`" 10 ''
+`" 10 ""
 
 # func args should be visible
 test_src_result "`cat << EOS

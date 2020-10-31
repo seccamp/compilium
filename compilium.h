@@ -304,6 +304,8 @@ struct Node *CreateToken(const char *input);
 struct Node *Tokenize(const char *input);
 
 // @type.c
+int IsPointerType(struct Node *n);
+int GetScaleOfPointerType(struct Node *n);
 int IsSameTypeExceptAttr(struct Node *a, struct Node *b);
 int IsLValueType(struct Node *t);
 struct Node *GetTypeWithoutAttr(struct Node *t);

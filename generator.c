@@ -482,6 +482,18 @@ static void GenerateForNode(struct Node *node) {
       GenerateForNodeRValue(node->left);
       GenerateForNodeRValue(node->right);
       if (IsEqualTokenWithCStr(node->op, "+")) {
+        struct Node *left_expr_type = GetRValueType(node->left->expr_type);
+        if (IsPointerType(left_expr_type)) {
+          // some_pointer + something
+          int scale = GetScaleOfPointerType(left_expr_type);
+          fprintf(stderr, "scale = %d\n", scale);
+          assert(scale == 1 || scale == 4);
+          printf("lea %s, [%s + %d * %s]\n", reg_names_64[node->reg],
+                 reg_names_64[node->reg], scale,
+                 reg_names_64[node->right->reg]);
+
+          return;
+        }
         printf("add %s, %s\n", reg_names_64[node->reg],
                reg_names_64[node->right->reg]);
         return;
