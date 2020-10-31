@@ -3,7 +3,7 @@
 int IsPointerType(struct Node *n) { return n && n->type == kTypePointer; }
 
 int GetScaleOfPointerType(struct Node *n) {
-  // int * -> 8
+  // int * -> 4
   // char * -> 1
   // not a pointer -> 0
   if (!IsPointerType(n)) {
