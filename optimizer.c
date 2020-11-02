@@ -1,5 +1,16 @@
 #include "compilium.h"
 
+//
+struct Node* CreateNodeFrom(int value) {
+  char s[12];
+  snprintf(s, sizeof(s), "%d", value);
+  char *ds = strdup(s);  // duplicate because s is allocated on the stack
+  int line = 0;
+  struct Node *node = AllocNode(kASTExpr);
+  node->op = CreateNextToken(ds, ds, &line);  // use ds here
+  return node;
+}
+
 // ConstantPropagation は式を受け取り，左右が定数値であれば，
 // 定数畳み込みを行い，式を定数式に書き換える。
 //
@@ -41,16 +52,13 @@ int ConstantPropagation(struct Node *expr) {
     return false;
   }
 
-  fprintf(stderr, "%d %.*s %d = %s\n", left_var, expr->op->length,
-          expr->op->begin, right_var, s);
+  // fprintf(stderr, "%d %.*s %d = %s\n", left_var, expr->op->length,
+  //         expr->op->begin, right_var, s);
 
-  fprintf(stderr, "s: %s\n", s);
-  char *ds = strdup(s);  // duplicate because s is allocated on the stack
-  int line = 0;
-  expr->op = CreateNextToken(ds, ds, &line);  // use ds here
-  expr->left = NULL;
-  expr->right = NULL;
+  // fprintf(stderr, "s: %s\n", s);
+
   // PrintASTNode(expr);
+
 
   return true;
 }
