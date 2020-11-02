@@ -17,6 +17,7 @@ struct Node* CreateNodeFromValue(int value) {
 // @param expr: 式を表すノード。NULL なら何もせず 0 を返す。
 // @return 式が定数式に書き換わったら true
 int ConstantPropagation(struct Node **exprp) {
+  assert(exprp != NULL);
   struct Node *expr = *exprp;
   if (!expr || expr->type != kASTExpr) {
     return false;
@@ -37,30 +38,21 @@ int ConstantPropagation(struct Node **exprp) {
   int right_var = strtol(expr->right->op->begin, NULL, 10);
   // PrintASTNode(expr);
 
-  char s[12];
-
+  int val;
   if (strncmp(expr->op->begin, "+", expr->op->length) == 0) {
-    snprintf(s, sizeof(s), "%d", left_var + right_var);
+    val = left_var + right_var;
   } else if (strncmp(expr->op->begin, "-", expr->op->length) == 0) {
-    snprintf(s, sizeof(s), "%d", left_var - right_var);
+    val = left_var - right_var;
   } else if (strncmp(expr->op->begin, "*", expr->op->length) == 0) {
-    snprintf(s, sizeof(s), "%d", left_var * right_var);
+    val = left_var * right_var;
   } else if (strncmp(expr->op->begin, "/", expr->op->length) == 0) {
-    snprintf(s, sizeof(s), "%d", left_var / right_var);
+    val = left_var / right_var;
   } else if (strncmp(expr->op->begin, "%", expr->op->length) == 0) {
-    snprintf(s, sizeof(s), "%d", left_var % right_var);
+    val = left_var % right_var;
   } else {
     return false;
   }
-
-  // fprintf(stderr, "%d %.*s %d = %s\n", left_var, expr->op->length,
-  //         expr->op->begin, right_var, s);
-
-  // fprintf(stderr, "s: %s\n", s);
-
-  // PrintASTNode(expr);
-
-
+  *exprp = CreateNodeFromValue(val);
   return true;
 }
 
