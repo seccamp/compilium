@@ -55,39 +55,11 @@ int ConstantPropagation(struct Node *expr) {
   return true;
 }
 
-// OptimizeExpr は式を受け取って定数伝播の最適化を施す。
-//
-// @param expr:  式を表すノード。NULL なら何もせず 0 を返す。
-// @return 定数伝播最適化が行われたら 1
-int OptimizeExpr(struct Node *expr) {
-  if (!expr) {
-    return 0;
-  }
-  if (expr->type != kASTExpr && expr->type != kASTExprFuncCall) {
-    return 0;
-  }
-
-  fprintf(stderr, "OptimizeExpr:\n");
-  // PrintASTNode(expr);
-
-  OptimizeExpr(expr->left);
-  OptimizeExpr(expr->right);
-  if (expr->arg_expr_list) {
-    assert(IsASTList(expr->arg_expr_list));
-    for (int i = 0; i < GetSizeOfList(expr->arg_expr_list); i++) {
-      struct Node *n = GetNodeAt(expr->arg_expr_list, i);
-      OptimizeExpr(n);
-    }
-  }
-
-  // left と right が定数なら，ここで定数の計算
-  ConstantPropagation(expr);
-
-  return 1;
-}
-
-void Optimize(struct Node *ast) {
+void Optimize(struct Node *n) {
   // Show the base AST
+  if (!n) {
+    return;
+  }
   fprintf(stderr, "AST before optimization:\n");
   // PrintASTNode(ast);
 
@@ -95,35 +67,49 @@ void Optimize(struct Node *ast) {
   // do something cool here...
 
   // Calculate constant expression on toplevel return
-  assert(IsASTList(ast));
-  for (int i = 0; i < GetSizeOfList(ast); i++) {
-    struct Node *n = GetNodeAt(ast, i);
-    if (n->type != kASTFuncDef) {
-      continue;
-    }
-    // for each FuncDef
-    assert(IsASTList(n->func_body));
-    for (int k = 0; k < GetSizeOfList(n->func_body); k++) {
-      struct Node *toplevel_expr = GetNodeAt(n->func_body, k);
-      switch (toplevel_expr->type) {
-        case kASTExprStmt:
-        case kASTJumpStmt:
-          if (toplevel_expr->left) {
-            OptimizeExpr(toplevel_expr->left);
-          }
-          if (toplevel_expr->right) {
-            OptimizeExpr(toplevel_expr->right);
-          }
-          break;
-        case kASTList:
-          for (int l = 0; l < GetSizeOfList(toplevel_expr->body); l++) {
-            struct Node *stmt = GetNodeAt(toplevel_expr->body, l);
-            
-          }
-        default:
-          break;
+  // assert(IsASTList(ast));
+  // for (int i = 0; i < GetSizeOfList(ast); i++) {
+  //   struct Node *n = GetNodeAt(ast, i);
+  //   if (n->type != kASTFuncDef) {
+  //     continue;
+  //   }
+  //   // for each FuncDef
+  //   assert(IsASTList(n->func_body));
+  //   for (int k = 0; k < GetSizeOfList(n->func_body); k++) {
+  //     struct Node *n = GetNodeAt(n->func_body, k);
+  switch (n->type) {
+    case kASTExpr:
+      if (!n) {
+        return;
       }
-    }
+      if (n->type != kASTExpr && n->type != kASTExprFuncCall) {
+        return;
+      }
+
+      fprintf(stderr, "Optimize:\n");
+      // PrintASTNode(n);
+
+      Optimize(n->left);
+      Optimize(n->right);
+      Optimize(n->arg_expr_list);
+      // left と right が定数なら，ここで定数の計算
+      ConstantPropagation(n);
+    case kASTExprStmt:
+    case kASTJumpStmt:
+      if (n->left) {
+        Optimize(n->left);
+      }
+      if (n->right) {
+        Optimize(n->right);
+      }
+      break;
+    case kASTList:
+      for (int l = 0; l < GetSizeOfList(n->body); l++) {
+        // struct Node *stmt = GetNodeAt(n->body, l);
+        
+      }
+    default:
+      break;
   }
 
   // Show the result
