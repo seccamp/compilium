@@ -1,7 +1,7 @@
 #include "compilium.h"
 
-// 
-struct Node* CreateNodeFromValue(int value) {
+//
+struct Node *CreateNodeFromValue(int value) {
   char s[12];
   snprintf(s, sizeof(s), "%d", value);
   char *ds = strdup(s);  // duplicate because s is allocated on the stack
@@ -56,8 +56,11 @@ int ConstantPropagation(struct Node **exprp) {
   return true;
 }
 
-void Optimize(struct Node *n) {
-  // Show the base AST
+void Optimize(struct Node **np) {
+  if (!np) {
+    return;
+  }
+  struct Node *n = *np;
   if (!n) {
     return;
   }
@@ -79,41 +82,41 @@ void Optimize(struct Node *n) {
   //   for (int k = 0; k < GetSizeOfList(n->func_body); k++) {
   //     struct Node *n = GetNodeAt(n->func_body, k);
   if (n->type == kASTFuncDef) {
-    Optimize(n->func_body);
+    Optimize(&n->func_body);
     return;
   }
   if (n->type == kASTExprFuncCall) {
-    Optimize(n->left);
-    Optimize(n->arg_expr_list);
+    Optimize(&n->left);
+    Optimize(&n->arg_expr_list);
     return;
   }
   if (n->type == kASTExpr) {
     fprintf(stderr, "Optimize:\n");
     // PrintASTNode(n);
-    Optimize(n->left);
-    Optimize(n->right);
+    Optimize(&n->left);
+    Optimize(&n->right);
     // left と right が定数なら，ここで定数の計算
-    ConstantPropagation(&n);
+    ConstantPropagation(np);
     return;
   }
   if (n->type == kASTExprStmt || n->type == kASTJumpStmt) {
     if (n->left) {
-      Optimize(n->left);
+      Optimize(&n->left);
     }
     if (n->right) {
-      Optimize(n->right);
+      Optimize(&n->right);
     }
     return;
   }
   if (n->type == kASTList) {
     for (int l = 0; l < GetSizeOfList(n); l++) {
       struct Node *stmt = GetNodeAt(n, l);
-      Optimize(stmt);
+      Optimize(&stmt);
     }
     return;
   }
   if (n->type == kASTForStmt) {
-    Optimize(n->body);
+    Optimize(&n->body);
     return;
   }
   // Show the result
