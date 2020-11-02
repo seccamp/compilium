@@ -78,6 +78,11 @@ void Optimize(struct Node *n) {
   //   for (int k = 0; k < GetSizeOfList(n->func_body); k++) {
   //     struct Node *n = GetNodeAt(n->func_body, k);
   switch (n->type) {
+    case kASTFuncDef:
+      Optimize(n->func_body);
+      break;
+    case kASTExprFuncCall:
+      
     case kASTExpr:
       if (!n) {
         return;
@@ -94,6 +99,7 @@ void Optimize(struct Node *n) {
       Optimize(n->arg_expr_list);
       // left と right が定数なら，ここで定数の計算
       ConstantPropagation(n);
+      break;
     case kASTExprStmt:
     case kASTJumpStmt:
       if (n->left) {
@@ -104,10 +110,14 @@ void Optimize(struct Node *n) {
       }
       break;
     case kASTList:
-      for (int l = 0; l < GetSizeOfList(n->body); l++) {
-        // struct Node *stmt = GetNodeAt(n->body, l);
-        
+      for (int l = 0; l < GetSizeOfList(n); l++) {
+        struct Node *stmt = GetNodeAt(n, l);
+        Optimize(stmt);
       }
+      break;
+    case kASTForStmt:
+      Optimize(n->body);
+      break;
     default:
       break;
   }
