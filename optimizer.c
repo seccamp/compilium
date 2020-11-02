@@ -115,28 +115,14 @@ void Optimize(struct Node *ast) {
             OptimizeExpr(toplevel_expr->right);
           }
           break;
+        case kASTList:
+          for (int l = 0; l < GetSizeOfList(toplevel_expr->body); l++) {
+            struct Node *stmt = GetNodeAt(toplevel_expr->body, l);
+            
+          }
         default:
           break;
       }
-      // if (toplevel_expr->type == kASTExprStmt) {
-      //   struct Node *expr = toplevel_expr->left;
-      //   // for each ExprStmt
-      //   if (!expr || expr->type != kASTExpr) {
-      //     continue;
-      //   }
-      //   if (OptimizeExpr(expr) == true) {
-      //     continue;
-      //   }
-      // } else if (toplevel_expr->type == kASTExprFuncCall) {
-
-      // } else if (toplevel_expr->type == kASTJumpStmt) {
-      //   if(toplevel_expr->left) {
-      //     OptimizeExpr(toplevel_expr->left);
-      //   }
-      //   if(toplevel_expr->right) {
-      //     OptimizeExpr(toplevel_expr->right);
-      //   }
-      // }
     }
   }
 
