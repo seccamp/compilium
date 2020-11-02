@@ -1,7 +1,7 @@
 #include "compilium.h"
 
-//
-struct Node* CreateNodeFrom(int value) {
+// 
+struct Node* CreateNodeFromValue(int value) {
   char s[12];
   snprintf(s, sizeof(s), "%d", value);
   char *ds = strdup(s);  // duplicate because s is allocated on the stack
@@ -16,7 +16,8 @@ struct Node* CreateNodeFrom(int value) {
 //
 // @param expr: 式を表すノード。NULL なら何もせず 0 を返す。
 // @return 式が定数式に書き換わったら true
-int ConstantPropagation(struct Node *expr) {
+int ConstantPropagation(struct Node **exprp) {
+  struct Node *expr = *exprp;
   if (!expr || expr->type != kASTExpr) {
     return false;
   }
@@ -100,7 +101,7 @@ void Optimize(struct Node *n) {
     Optimize(n->left);
     Optimize(n->right);
     // left と right が定数なら，ここで定数の計算
-    ConstantPropagation(n);
+    ConstantPropagation(&n);
     return;
   }
   if (n->type == kASTExprStmt || n->type == kASTJumpStmt) {
