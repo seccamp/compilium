@@ -77,51 +77,44 @@ void Optimize(struct Node *n) {
   //   assert(IsASTList(n->func_body));
   //   for (int k = 0; k < GetSizeOfList(n->func_body); k++) {
   //     struct Node *n = GetNodeAt(n->func_body, k);
-  switch (n->type) {
-    case kASTFuncDef:
-      Optimize(n->func_body);
-      break;
-    case kASTExprFuncCall:
-      
-    case kASTExpr:
-      if (!n) {
-        return;
-      }
-      if (n->type != kASTExpr && n->type != kASTExprFuncCall) {
-        return;
-      }
-
-      fprintf(stderr, "Optimize:\n");
-      // PrintASTNode(n);
-
-      Optimize(n->left);
-      Optimize(n->right);
-      Optimize(n->arg_expr_list);
-      // left と right が定数なら，ここで定数の計算
-      ConstantPropagation(n);
-      break;
-    case kASTExprStmt:
-    case kASTJumpStmt:
-      if (n->left) {
-        Optimize(n->left);
-      }
-      if (n->right) {
-        Optimize(n->right);
-      }
-      break;
-    case kASTList:
-      for (int l = 0; l < GetSizeOfList(n); l++) {
-        struct Node *stmt = GetNodeAt(n, l);
-        Optimize(stmt);
-      }
-      break;
-    case kASTForStmt:
-      Optimize(n->body);
-      break;
-    default:
-      break;
+  if (n->type == kASTFuncDef) {
+    Optimize(n->func_body);
+    return;
   }
-
+  if (n->type == kASTExprFuncCall) {
+    Optimize(n->left);
+    Optimize(n->arg_expr_list);
+    return;
+  }
+  if (n->type == kASTExpr) {
+    fprintf(stderr, "Optimize:\n");
+    // PrintASTNode(n);
+    Optimize(n->left);
+    Optimize(n->right);
+    // left と right が定数なら，ここで定数の計算
+    ConstantPropagation(n);
+    return;
+  }
+  if (n->type == kASTExprStmt || n->type == kASTJumpStmt) {
+    if (n->left) {
+      Optimize(n->left);
+    }
+    if (n->right) {
+      Optimize(n->right);
+    }
+    return;
+  }
+  if (n->type == kASTList) {
+    for (int l = 0; l < GetSizeOfList(n); l++) {
+      struct Node *stmt = GetNodeAt(n, l);
+      Optimize(stmt);
+    }
+    return;
+  }
+  if (n->type == kASTForStmt) {
+    Optimize(n->body);
+    return;
+  }
   // Show the result
   fprintf(stderr, "AST after optimization:\n");
   // PrintASTNode(ast);
