@@ -23,8 +23,32 @@ struct Node *CreateNodeFromValue(int value) {
 // Strength Reduction はコストの低い演算に書き換えるもの
 // @param expr: 式を表すノード。NULL なら何もせず 0 を返す。
 void StrengthReduction(struct Node **exprp){
+  assert(exprp != NULL);
+  struct Node *expr = *exprp;
+  if (!expr || expr->type != kASTExpr) {
+    return;
+  }
+  if (!expr->left || !expr->right) {
+    return;
+  }
+  if (!expr->left->op || !expr->right->op) {
+    return;
+  }
 
-
+  if (expr->right->op->token_type != kTokenIntegerConstant) {
+    return;
+  }
+  int right_var = strtol(expr->right->op->begin, NULL, 10);
+  
+  if (strncmp(expr->op->begin, "/=", expr->op->length) == 0) {
+    if (right_var == 2) {
+      expr->op->begin  = strdup(">>=");
+      expr->op->length = strlen(">>=");
+      expr->right->op->begin  = strdup("1");
+      expr->right->op->length = strlen("1");
+      return;
+    }
+  }
 }
 
 // ConstantPropagation は式を受け取り，左右が定数値であれば，
@@ -113,6 +137,7 @@ void Optimize(struct Node **np) {
     Optimize(&n->right);
     // left と right が定数なら，ここで定数の計算
     ConstantPropagation(np);
+    StrengthReduction(np);
     return;
   }
   if (n->type == kASTExprStmt || n->type == kASTJumpStmt) {

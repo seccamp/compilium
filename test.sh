@@ -220,6 +220,8 @@ test_stmt_result 'int a;a = 3; return 3 + 5 + a + 2 * 5;' 21
 
 test_stmt_result 'int a;a = 2 - 5; return a+8;' 5
 
+test_stmt_result 'int a = 7; a /= 2; return a;' 3
+
 # Non-printable
 test_expr_result ' 0 ' 0
 
