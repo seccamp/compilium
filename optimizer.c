@@ -21,6 +21,7 @@ struct Node *CreateNodeFromValue(int value) {
 }
 
 // Strength Reduction はコストの低い演算に書き換えるもの
+// 負の値の演算には対応していない
 // @param expr: 式を表すノード。NULL なら何もせず 0 を返す。
 void StrengthReduction(struct Node **exprp){
   assert(exprp != NULL);
@@ -40,6 +41,15 @@ void StrengthReduction(struct Node **exprp){
   }
   int right_var = strtol(expr->right->op->begin, NULL, 10);
   
+  if (strncmp(expr->op->begin, "/", expr->op->length) == 0) {
+    if (right_var == 2) {
+      expr->op->begin  = strdup(">>");
+      expr->op->length = strlen(">>");
+      expr->right->op->begin  = strdup("1");
+      expr->right->op->length = strlen("1");
+      return;
+    }
+  }
   if (strncmp(expr->op->begin, "/=", expr->op->length) == 0) {
     if (right_var == 2) {
       expr->op->begin  = strdup(">>=");

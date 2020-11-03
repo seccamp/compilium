@@ -222,6 +222,8 @@ test_stmt_result 'int a;a = 2 - 5; return a+8;' 5
 
 test_stmt_result 'int a = 7; a /= 2; return a;' 3
 
+test_stmt_result 'int a ; int b = 8; a =  b/2; return a;' 4
+
 # Non-printable
 test_expr_result ' 0 ' 0
 
