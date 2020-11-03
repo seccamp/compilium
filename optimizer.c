@@ -10,7 +10,7 @@ struct Node *CreateNodeFromValue(int value) {
 
   if (value < 0) {
     // マイナスだったら一度負じゃない部分のトークンを作る
-    node->op = CreateNextToken(ds+1, ds+1, &line);
+    node->op = CreateNextToken(ds + 1, ds + 1, &line);
     node->op->begin--;
     node->op->length++;
   } else {
@@ -20,10 +20,11 @@ struct Node *CreateNodeFromValue(int value) {
   return node;
 }
 
-// Strength Reduction はコストの低い演算に書き換えるもの
-// 負の値の演算には対応していない
+// Strength Reduction
+// は式を受け取り、可能であればよりコストの低い演算に書き換える
+// 左辺または右辺が負の値である演算には対応していない
 // @param expr: 式を表すノード。NULL なら何もせず 0 を返す。
-void StrengthReduction(struct Node **exprp){
+void StrengthReduction(struct Node **exprp) {
   assert(exprp != NULL);
   struct Node *expr = *exprp;
   if (!expr || expr->type != kASTExpr) {
@@ -40,21 +41,24 @@ void StrengthReduction(struct Node **exprp){
     return;
   }
   int right_var = strtol(expr->right->op->begin, NULL, 10);
-  
+
   if (strncmp(expr->op->begin, "/", expr->op->length) == 0) {
-    if (right_var == 2) {
-      expr->op->begin  = strdup(">>");
-      expr->op->length = strlen(">>");
-      expr->right->op->begin  = strdup("1");
-      expr->right->op->length = strlen("1");
+    if (right_var < 0) {
       return;
     }
+    if (__builtin_popcount(right_var) != 1) {
+      return;
+    }
+    int log2_right_var = __builtin_popcount(right_var - 1);
+    expr->op->begin = strdup(">>");
+    expr->op->length = strlen(">>");
+    expr->right = CreateNodeFromValue(log2_right_var);
   }
   if (strncmp(expr->op->begin, "/=", expr->op->length) == 0) {
     if (right_var == 2) {
-      expr->op->begin  = strdup(">>=");
+      expr->op->begin = strdup(">>=");
       expr->op->length = strlen(">>=");
-      expr->right->op->begin  = strdup("1");
+      expr->right->op->begin = strdup("1");
       expr->right->op->length = strlen("1");
       return;
     }
