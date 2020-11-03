@@ -20,6 +20,13 @@ struct Node *CreateNodeFromValue(int value) {
   return node;
 }
 
+// Strength Reduction はコストの低い演算に書き換えるもの
+// @param expr: 式を表すノード。NULL なら何もせず 0 を返す。
+void StrengthReduction(struct Node **exprp){
+
+
+}
+
 // ConstantPropagation は式を受け取り，左右が定数値であれば，
 // 定数畳み込みを行い，式を定数式に書き換える。
 //
