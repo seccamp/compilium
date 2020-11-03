@@ -7,7 +7,16 @@ struct Node *CreateNodeFromValue(int value) {
   char *ds = strdup(s);  // duplicate because s is allocated on the stack
   int line = 0;
   struct Node *node = AllocNode(kASTExpr);
-  node->op = CreateNextToken(ds, ds, &line);  // use ds here
+
+  if (value < 0) {
+    // マイナスだったら一度負じゃない部分のトークンを作る
+    node->op = CreateNextToken(ds+1, ds+1, &line);
+    node->op->begin--;
+    node->op->length++;
+  } else {
+    node->op = CreateNextToken(ds, ds, &line);  // use ds here
+  }
+
   return node;
 }
 

@@ -218,6 +218,8 @@ test_stmt_result 'int a; int b; int c; a = 3; b = 5; c = 7; return a * b % c;' 1
 
 test_stmt_result 'int a;a = 3; return 3 + 5 + a + 2 * 5;' 21
 
+test_stmt_result 'int a;a = 2 - 5; return a+8;' 5
+
 # Non-printable
 test_expr_result ' 0 ' 0
 
