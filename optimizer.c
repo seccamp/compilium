@@ -53,15 +53,20 @@ void StrengthReduction(struct Node **exprp) {
     expr->op->begin = strdup(">>");
     expr->op->length = strlen(">>");
     expr->right = CreateNodeFromValue(log2_right_var);
+    return;
   }
   if (strncmp(expr->op->begin, "/=", expr->op->length) == 0) {
-    if (right_var == 2) {
-      expr->op->begin = strdup(">>=");
-      expr->op->length = strlen(">>=");
-      expr->right->op->begin = strdup("1");
-      expr->right->op->length = strlen("1");
+    if (right_var < 0) {
       return;
     }
+    if (__builtin_popcount(right_var) != 1) {
+      return;
+    }
+    int log2_right_var = __builtin_popcount(right_var - 1);
+    expr->op->begin  = strdup(">>=");
+    expr->op->length = strlen(">>=");
+    expr->right = CreateNodeFromValue(log2_right_var);
+    return;
   }
 }
 

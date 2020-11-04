@@ -220,9 +220,29 @@ test_stmt_result 'int a;a = 3; return 3 + 5 + a + 2 * 5;' 21
 
 test_stmt_result 'int a;a = 2 - 5; return a+8;' 5
 
+test_stmt_result 'int a = 6; a /= 2; return a;' 3
 test_stmt_result 'int a = 7; a /= 2; return a;' 3
+test_stmt_result 'int a = 15; a /= 4; return a;' 3
+test_stmt_result 'int a = 16; a /= 4; return a;' 4
+test_stmt_result 'int a = 17; a /= 4; return a;' 4
+test_stmt_result 'int a = 262143; a /= 32768; return a;' 7
+test_stmt_result 'int a = 262144; a /= 32768; return a;' 8
+test_stmt_result 'int a = 262145; a /= 32768; return a;' 8
 
+test_stmt_result 'int a = 262145; a /= 7; return a==37449;' 1
+
+test_stmt_result 'int a ; int b = 7; a =  b/2; return a;' 3
 test_stmt_result 'int a ; int b = 8; a =  b/2; return a;' 4
+test_stmt_result 'int a ; int b = 9; a =  b/2; return a;' 4
+
+test_stmt_result 'int a ; int b = 15; a =  b/4; return a;' 3
+test_stmt_result 'int a ; int b = 16; a =  b/4; return a;' 4
+test_stmt_result 'int a ; int b = 17; a =  b/4; return a;' 4
+
+test_stmt_result 'int a ; int b = 262143; a =  b/32768; return a;' 7
+test_stmt_result 'int a ; int b = 262144; a =  b/32768; return a;' 8
+test_stmt_result 'int a ; int b = 262145; a =  b/32768; return a;' 8
+
 
 # Non-printable
 test_expr_result ' 0 ' 0

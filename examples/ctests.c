@@ -224,6 +224,19 @@ void TestDec() {
   ExpectEq(--v, 0, __LINE__);
 }
 
+void TestEqDiv() {
+  {
+    int a = 789;
+    a /= 2;
+    ExpectEq(a, 394, __LINE__);
+  }
+  {
+    int a = 789;
+    a /= 4;
+    ExpectEq(a, 197, __LINE__);
+  }
+}
+
 int TestCharLiteralAccess() {
   ExpectEq(*"compilium", 'c', __LINE__);
   ExpectEq(*("compilium" + 0), 'c', __LINE__);
@@ -318,6 +331,8 @@ int main(int argc, char** argv) {
   TestReassign();
   TestCharLiteralAccess();
   TestInc();
+  TestDec();
+  TestEqDiv();
 
   ExpectEq('C', 67, __LINE__);
 
