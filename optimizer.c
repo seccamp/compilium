@@ -135,6 +135,57 @@ int ConstantPropagation(struct Node **exprp) {
   return true;
 }
 
+int isRecursiveFunction(struct Node *fnp, struct Node *n) {
+  if (n->type == kASTExprFuncCall) {
+    Optimize(&n->left);
+    Optimize(&n->arg_expr_list);
+    return;
+  }
+  if (n->type == kASTExpr) {
+    fprintf(stderr, "Optimize:\n");
+    // PrintASTNode(n);
+    Optimize(&n->left);
+    Optimize(&n->right);
+    // left と right が定数なら，ここで定数の計算
+    ConstantPropagation(np);
+    StrengthReduction(np);
+    return;
+  }
+  if (n->type == kASTExprStmt || n->type == kASTJumpStmt) {
+    if (n->left) {
+      Optimize(&n->left);
+    }
+    if (n->right) {
+      Optimize(&n->right);
+    }
+    return;
+  }
+  if (n->type == kASTList) {
+    for (int l = 0; l < GetSizeOfList(n); l++) {
+      struct Node *stmt = GetNodeAt(n, l);
+      Optimize(&stmt);
+    }
+    return;
+  }
+  if (n->type == kASTForStmt) {
+    Optimize(&n->body);
+    return;
+  }
+  // Show the result
+  fprintf(stderr, "AST after optimization:\n");
+  // PrintASTNode(ast);
+  // fputs("Optimization end\n", stderr);
+}
+
+void OptimizeRecursiveFunction(struct Node **fnp) {
+  assert(fnp != NULL);
+  struct Node *fn = *fnp;
+  assert(fn != NULL);
+  assert(fn->type == kASTFuncDef);
+
+  isRecursiveFunction(Node, );
+}
+
 void Optimize(struct Node **np) {
   if (!np) {
     return;
@@ -144,22 +195,6 @@ void Optimize(struct Node **np) {
     return;
   }
   fprintf(stderr, "AST before optimization:\n");
-  // PrintASTNode(ast);
-
-  // fputs("Optimization begin\n", stderr);
-  // do something cool here...
-
-  // Calculate constant expression on toplevel return
-  // assert(IsASTList(ast));
-  // for (int i = 0; i < GetSizeOfList(ast); i++) {
-  //   struct Node *n = GetNodeAt(ast, i);
-  //   if (n->type != kASTFuncDef) {
-  //     continue;
-  //   }
-  //   // for each FuncDef
-  //   assert(IsASTList(n->func_body));
-  //   for (int k = 0; k < GetSizeOfList(n->func_body); k++) {
-  //     struct Node *n = GetNodeAt(n->func_body, k);
   if (n->type == kASTFuncDef) {
     //関数の再起呼び出しの検知
     fprintf(stderr, "FuncDefName : %.*s\n", n->func_name_token->length, n->func_name_token->begin);
