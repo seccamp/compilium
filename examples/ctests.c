@@ -237,6 +237,29 @@ void TestEqDiv() {
   }
 }
 
+void TestEqUnary() {
+  {
+    int a = -9;
+    ExpectEq(a, -9, __LINE__);
+  }
+  {
+    int a = -9 * 5;
+    ExpectEq(a, -45, __LINE__);
+  }
+  {
+    int a = -9 * (-5);
+    ExpectEq(a, 45, __LINE__);
+  }
+  {
+    int a = +7;
+    ExpectEq(a, 7, __LINE__);
+  }
+  {
+    int a = +7 * 8;
+    ExpectEq(a, 56, __LINE__);
+  }
+}
+
 int TestCharLiteralAccess() {
   ExpectEq(*"compilium", 'c', __LINE__);
   ExpectEq(*("compilium" + 0), 'c', __LINE__);

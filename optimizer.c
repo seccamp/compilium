@@ -91,6 +91,8 @@ int ConstantPropagation(struct Node **exprp) {
     int val;
     if (strncmp(expr->op->begin, "-", expr->op->length) == 0) {
       val =  - right_var;
+    } else if (strncmp(expr->op->begin, "+", expr->op->length) == 0) {
+      val = + right_var;
     } else {
       return false;
     }
@@ -159,6 +161,8 @@ void Optimize(struct Node **np) {
   //   for (int k = 0; k < GetSizeOfList(n->func_body); k++) {
   //     struct Node *n = GetNodeAt(n->func_body, k);
   if (n->type == kASTFuncDef) {
+    //関数の再起呼び出しの検知
+    fprintf(stderr, "FuncDefName : %.*s\n", n->func_name_token->length, n->func_name_token->begin);
     Optimize(&n->func_body);
     return;
   }
