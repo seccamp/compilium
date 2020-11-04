@@ -81,6 +81,24 @@ int ConstantPropagation(struct Node **exprp) {
   if (!expr || expr->type != kASTExpr) {
     return false;
   }
+
+  if (!expr->right || !expr->right->op || expr->right->op->token_type != kTokenIntegerConstant) {
+    return false;
+  }
+  int right_var = strtol(expr->right->op->begin, NULL, 10);
+  if (!expr->left) {
+    // 単項演算子
+    int val;
+    if (strncmp(expr->op->begin, "-", expr->op->length) == 0) {
+      val =  - right_var;
+    } else {
+      return false;
+    }
+    *exprp = CreateNodeFromValue(val);
+    return true;
+  }
+
+  
   if (!expr->left || !expr->right) {
     return false;
   }
@@ -88,13 +106,13 @@ int ConstantPropagation(struct Node **exprp) {
     return false;
   }
 
+
   if (expr->left->op->token_type != kTokenIntegerConstant ||
       expr->right->op->token_type != kTokenIntegerConstant) {
     return false;
   }
 
   int left_var = strtol(expr->left->op->begin, NULL, 10);
-  int right_var = strtol(expr->right->op->begin, NULL, 10);
   // PrintASTNode(expr);
 
   int val;
