@@ -180,7 +180,7 @@ void OptimizeRecursiveFunction(struct Node **fnp) {
   assert(fn != NULL);
   assert(fn->type == kASTFuncDef);
 
-  fprintf(stderr, "OptimizeRecusiveFunction %.*s %d", fn->op->length, fn->op->begin, isRecursiveFunction(fn, &fn->func_body));
+  fprintf(stderr, "OptimizeRecusiveFunction %.*s %d", fn->func_name_token->length, fn->func_name_token->begin, isRecursiveFunction(fn, &fn->func_body));
 }
 
 void Optimize(struct Node **np) {
