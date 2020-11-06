@@ -144,10 +144,11 @@ int isRecursiveFunction(struct Node *fn, struct Node **np) {
   struct Node *n = *np;
   assert(n != NULL);
   if (n->type == kASTExprFuncCall) {
-    if (fn->func_name_token->length != n->op->length) {
+    struct Node *fexpr = n->func_expr;
+    if (fn->func_name_token->length != fexpr->op->length) {
       return false;
     }
-    if (strncmp(fn->func_name_token->begin, n->op->begin, n->op->length) == 0) {
+    if (strncmp(fn->func_name_token->begin, fexpr->op->begin, fexpr->op->length) == 0) {
       return true;
     } else {
       return false;
@@ -180,7 +181,7 @@ void OptimizeRecursiveFunction(struct Node **fnp) {
   assert(fn != NULL);
   assert(fn->type == kASTFuncDef);
 
-  fprintf(stderr, "OptimizeRecusiveFunction %.*s %d", fn->func_name_token->length, fn->func_name_token->begin, isRecursiveFunction(fn, &fn->func_body));
+  fprintf(stderr, "OptimizeRecusiveFunction %.*s %d\n", fn->func_name_token->length, fn->func_name_token->begin, isRecursiveFunction(fn, &fn->func_body));
 }
 
 void Optimize(struct Node **np) {
