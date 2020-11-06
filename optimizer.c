@@ -138,11 +138,11 @@ int ConstantPropagation(struct Node **exprp) {
 // 関数の中で親と同じ名前の関数を呼び出していたら1を返す
 // @param fn: 親の関数のノード
 // @param np: 再帰で検索する子どものノード
-int isRecursiveFunction(struct Node *fn, struct Node **np) {
-  assert(np != NULL);
+int isRecursiveFunction(struct Node *fn, struct Node *n) {
   assert(fn != NULL);
-  struct Node *n = *np;
-  assert(n != NULL);
+  if (n == NULL ) {
+    return false;
+  }
   if (n->type == kASTExprFuncCall) {
     struct Node *fexpr = n->func_expr;
     if (fn->func_name_token->length != fexpr->op->length) {
@@ -155,22 +155,22 @@ int isRecursiveFunction(struct Node *fn, struct Node **np) {
     }
   }
   if (n->type == kASTExpr) {
-    return isRecursiveFunction(fn, &n->left) || isRecursiveFunction(fn, &n->right);
+    return isRecursiveFunction(fn, n->left) || isRecursiveFunction(fn, n->right);
   }
   if (n->type == kASTExprStmt || n->type == kASTJumpStmt) {
-    return isRecursiveFunction(fn, &n->left) || isRecursiveFunction(fn, &n->right);
+    return isRecursiveFunction(fn, n->left) || isRecursiveFunction(fn, n->right);
   }
   if (n->type == kASTList) {
     for (int l = 0; l < GetSizeOfList(n); l++) {
       struct Node *stmt = GetNodeAt(n, l);
-      if (isRecursiveFunction(fn, &stmt)) {
+      if (isRecursiveFunction(fn, stmt)) {
         return true;
       }
     }
     return false;
   }
   if (n->type == kASTForStmt) {
-    return isRecursiveFunction(fn, &n->body);
+    return isRecursiveFunction(fn, n->body);
   }
   return false;
 }
@@ -181,7 +181,7 @@ void OptimizeRecursiveFunction(struct Node **fnp) {
   assert(fn != NULL);
   assert(fn->type == kASTFuncDef);
 
-  fprintf(stderr, "OptimizeRecusiveFunction %.*s %d\n", fn->func_name_token->length, fn->func_name_token->begin, isRecursiveFunction(fn, &fn->func_body));
+  fprintf(stderr, "OptimizeRecusiveFunction %.*s %d\n", fn->func_name_token->length, fn->func_name_token->begin, isRecursiveFunction(fn, fn->func_body));
 }
 
 void Optimize(struct Node **np) {
