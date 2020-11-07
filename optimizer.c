@@ -63,7 +63,7 @@ void StrengthReduction(struct Node **exprp) {
       return;
     }
     int log2_right_var = __builtin_popcount(right_var - 1);
-    expr->op->begin  = strdup(">>=");
+    expr->op->begin = strdup(">>=");
     expr->op->length = strlen(">>=");
     expr->right = CreateNodeFromValue(log2_right_var);
     return;
@@ -82,7 +82,8 @@ int ConstantPropagation(struct Node **exprp) {
     return false;
   }
 
-  if (!expr->right || !expr->right->op || expr->right->op->token_type != kTokenIntegerConstant) {
+  if (!expr->right || !expr->right->op ||
+      expr->right->op->token_type != kTokenIntegerConstant) {
     return false;
   }
   int right_var = strtol(expr->right->op->begin, NULL, 10);
@@ -90,9 +91,9 @@ int ConstantPropagation(struct Node **exprp) {
     // 単項演算子
     int val;
     if (strncmp(expr->op->begin, "-", expr->op->length) == 0) {
-      val =  - right_var;
+      val = -right_var;
     } else if (strncmp(expr->op->begin, "+", expr->op->length) == 0) {
-      val = + right_var;
+      val = +right_var;
     } else {
       return false;
     }
@@ -100,14 +101,12 @@ int ConstantPropagation(struct Node **exprp) {
     return true;
   }
 
-  
   if (!expr->left || !expr->right) {
     return false;
   }
   if (!expr->left->op || !expr->right->op) {
     return false;
   }
-
 
   if (expr->left->op->token_type != kTokenIntegerConstant ||
       expr->right->op->token_type != kTokenIntegerConstant) {
@@ -140,7 +139,7 @@ int ConstantPropagation(struct Node **exprp) {
 // @param np: 再帰で検索する子どものノード
 int isRecursiveFunction(struct Node *fn, struct Node *n) {
   assert(fn != NULL);
-  if (n == NULL ) {
+  if (n == NULL) {
     return false;
   }
   if (n->type == kASTExprFuncCall) {
@@ -148,17 +147,20 @@ int isRecursiveFunction(struct Node *fn, struct Node *n) {
     if (fn->func_name_token->length != fexpr->op->length) {
       return false;
     }
-    if (strncmp(fn->func_name_token->begin, fexpr->op->begin, fexpr->op->length) == 0) {
+    if (strncmp(fn->func_name_token->begin, fexpr->op->begin,
+                fexpr->op->length) == 0) {
       return true;
     } else {
       return false;
     }
   }
   if (n->type == kASTExpr) {
-    return isRecursiveFunction(fn, n->left) || isRecursiveFunction(fn, n->right);
+    return isRecursiveFunction(fn, n->left) ||
+           isRecursiveFunction(fn, n->right);
   }
   if (n->type == kASTExprStmt || n->type == kASTJumpStmt) {
-    return isRecursiveFunction(fn, n->left) || isRecursiveFunction(fn, n->right);
+    return isRecursiveFunction(fn, n->left) ||
+           isRecursiveFunction(fn, n->right);
   }
   if (n->type == kASTList) {
     for (int l = 0; l < GetSizeOfList(n); l++) {
@@ -181,7 +183,9 @@ void OptimizeRecursiveFunction(struct Node **fnp) {
   assert(fn != NULL);
   assert(fn->type == kASTFuncDef);
 
-  fprintf(stderr, "OptimizeRecusiveFunction %.*s %d\n", fn->func_name_token->length, fn->func_name_token->begin, isRecursiveFunction(fn, fn->func_body));
+  fprintf(stderr, "OptimizeRecusiveFunction %.*s %d\n",
+          fn->func_name_token->length, fn->func_name_token->begin,
+          isRecursiveFunction(fn, fn->func_body));
 }
 
 void Optimize(struct Node **np) {

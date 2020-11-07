@@ -27,6 +27,7 @@ debug : compilium_dbg failcase.c
 		-- ./compilium_dbg -I include/ --target-os `uname`
 
 testall : 
+	make -C abi_test test
 	make unittest
 	make ctest
 	make test
@@ -57,6 +58,7 @@ dbg_unittest_% : compilium_dbg
 format:
 	clang-format -i $(SRCS) $(HEADERS)
 	# make -C examples format
+	make -C abi_test format
 
 commit:
 	make format
