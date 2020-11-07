@@ -26,7 +26,11 @@ debug : compilium_dbg failcase.c
 		-o 'settings set target.input-path ${FAILCASE_FILE}' $(LLDB_ARGS) \
 		-- ./compilium_dbg -I include/ --target-os `uname`
 
-testall : unittest ctest test linkage_test
+testall : 
+	make unittest
+	make ctest
+	make test
+	make linkage_test
 	make -C examples
 
 test_preprocess : compilium
