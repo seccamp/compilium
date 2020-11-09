@@ -171,6 +171,10 @@ int isRecursiveFunction(struct Node *fn, struct Node *n) {
               fprintf(stderr, "Found Plus Constant \n");
               if (n->right->left->type == kASTExprFuncCall) {
                 fprintf(stderr, "Found Func Call \n");
+                struct Node *fexpr = n->right->left->func_expr;
+                if (IsEqualToken(fn->func_name_token, fexpr->op)) {
+                  fprintf(stderr, "Found Recursive Return Stmt \n");
+                }
               }
             }
         }

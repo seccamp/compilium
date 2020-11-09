@@ -46,6 +46,16 @@ int IsEqualTokenWithCStr(struct Node *t, const char *s) {
          strncmp(t->begin, s, t->length) == 0;
 }
 
+int IsEqualToken(struct Node *t1, struct Node *t2) {
+  if (t1->length != t2->length) {
+    return false;
+  }
+  if (strncmp(t1->begin, t2->begin, t2->length) != 0) {
+    return false;
+  }
+  return true;
+}
+
 void PrintTokenSequence(struct Node *t) {
   if (!t) return;
   assert(IsToken(t));

@@ -277,6 +277,7 @@ struct Node *DuplicateToken(struct Node *base_token);
 struct Node *DuplicateTokenSequence(struct Node *base_head);
 char *CreateTokenStr(struct Node *t);
 int IsEqualTokenWithCStr(struct Node *t, const char *s);
+int IsEqualToken(struct Node *t1, struct Node *t2);
 void PrintTokenSequence(struct Node *t);
 void OutputTokenSequenceAsCSource(struct Node *t);
 void PrintToken(struct Node *t);
