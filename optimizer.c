@@ -165,8 +165,14 @@ int isRecursiveFunction(struct Node *fn, struct Node *n) {
   if (n->type == kASTJumpStmt) {
     if (n->op->token_type == kTokenKwReturn){
         fprintf(stderr, "Found Return \n");
-        if (strncmp(n->right->op->begin, "+", n->right->op->length)){
+        if (strncmp(n->right->op->begin, "+", n->right->op->length) == 0){
             fprintf(stderr, "Found Return Plus \n");
+            if (n->right->right->op->token_type == kTokenIntegerConstant) {
+              fprintf(stderr, "Found Plus Constant \n");
+              if (n->right->left->type == kASTExprFuncCall) {
+                fprintf(stderr, "Found Func Call \n");
+              }
+            }
         }
     }
     return isRecursiveFunction(fn, n->right);
