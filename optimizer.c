@@ -135,6 +135,7 @@ int ConstantPropagation(struct Node **exprp) {
 }
 
 // 関数の中で親と同じ名前の関数を呼び出していたら1を返す
+// 現在は return func(a) + b の形しか対応してない
 // @param fn: 親の関数のノード
 // @param np: 再帰で検索する子どものノード
 int IsTailRecursiveFunction(struct Node *fn, struct Node *n) {
@@ -210,9 +211,15 @@ void OptimizeRecursiveFunction(struct Node **fnp) {
   assert(fn != NULL);
   assert(fn->type == kASTFuncDef);
 
-  fprintf(stderr, "OptimizeRecusiveFunction %.*s %d\n",
-          fn->func_name_token->length, fn->func_name_token->begin,
-          IsTailRecursiveFunction(fn, fn->func_body));
+  if (!IsTailRecursiveFunction(fn, fn->func_body)) {
+    return;
+  }
+  fprintf(stderr, "OptimizeRecusiveFunction %.*s\n",
+          fn->func_name_token->length, fn->func_name_token->begin);
+  
+  struct Node *for_stmt = AllocNode(kASTForStmt);
+  for_stmt->op = CreateToken("for");
+  for_stmt->body = fn->func_body;
 }
 
 void Optimize(struct Node **np) {
