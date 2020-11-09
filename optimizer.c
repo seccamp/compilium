@@ -158,9 +158,18 @@ int isRecursiveFunction(struct Node *fn, struct Node *n) {
     return isRecursiveFunction(fn, n->left) ||
            isRecursiveFunction(fn, n->right);
   }
-  if (n->type == kASTExprStmt || n->type == kASTJumpStmt) {
+  if (n->type == kASTExprStmt) {
     return isRecursiveFunction(fn, n->left) ||
            isRecursiveFunction(fn, n->right);
+  }
+  if (n->type == kASTJumpStmt) {
+    if (n->op->token_type == kTokenKwReturn){
+        fprintf(stderr, "Found Return \n");
+        if (strncmp(n->right->op->begin, "+", n->right->op->length)){
+            fprintf(stderr, "Found Return Plus \n");
+        }
+    }
+    return isRecursiveFunction(fn, n->right);
   }
   if (n->type == kASTList) {
     for (int l = 0; l < GetSizeOfList(n); l++) {
