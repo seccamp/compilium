@@ -6,7 +6,13 @@ struct Node *CreateNextToken(const char *p, const char *src, int *line) {
   if (*p == ' ') {
     return AllocToken(src, *line, p, 1, kTokenDelimiter);
   }
+  if (p[0] == '\r') {
+    // CR
+    (*line)++;
+    return AllocToken(src, *line, p, 1, kTokenDelimiter);
+  }
   if (*p == '\n') {
+    // LF
     (*line)++;
     return AllocToken(src, *line, p, 1, kTokenDelimiter);
   }

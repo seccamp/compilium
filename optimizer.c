@@ -216,7 +216,7 @@ void OptimizeRecursiveFunction(struct Node **fnp) {
   }
   fprintf(stderr, "OptimizeRecusiveFunction %.*s\n",
           fn->func_name_token->length, fn->func_name_token->begin);
-  
+
   struct Node *for_stmt = AllocNode(kASTForStmt);
   for_stmt->op = CreateToken("for");
   for_stmt->body = fn->func_body;
