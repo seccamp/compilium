@@ -137,7 +137,7 @@ int ConstantPropagation(struct Node **exprp) {
 // 関数の中で親と同じ名前の関数を呼び出していたら1を返す
 // @param fn: 親の関数のノード
 // @param np: 再帰で検索する子どものノード
-int isRecursiveFunction(struct Node *fn, struct Node *n) {
+int IsTailRecursiveFunction(struct Node *fn, struct Node *n) {
   assert(fn != NULL);
   if (n == NULL) {
     return false;
@@ -155,43 +155,51 @@ int isRecursiveFunction(struct Node *fn, struct Node *n) {
     }
   }
   if (n->type == kASTExpr) {
-    return isRecursiveFunction(fn, n->left) ||
-           isRecursiveFunction(fn, n->right);
+    return IsTailRecursiveFunction(fn, n->left) ||
+           IsTailRecursiveFunction(fn, n->right);
   }
   if (n->type == kASTExprStmt) {
-    return isRecursiveFunction(fn, n->left) ||
-           isRecursiveFunction(fn, n->right);
+    return IsTailRecursiveFunction(fn, n->left) ||
+           IsTailRecursiveFunction(fn, n->right);
   }
   if (n->type == kASTJumpStmt) {
-    if (n->op->token_type == kTokenKwReturn){
-        fprintf(stderr, "Found Return \n");
-        if (strncmp(n->right->op->begin, "+", n->right->op->length) == 0){
-            fprintf(stderr, "Found Return Plus \n");
-            if (n->right->right->op->token_type == kTokenIntegerConstant) {
-              fprintf(stderr, "Found Plus Constant \n");
-              if (n->right->left->type == kASTExprFuncCall) {
-                fprintf(stderr, "Found Func Call \n");
-                struct Node *fexpr = n->right->left->func_expr;
-                if (IsEqualToken(fn->func_name_token, fexpr->op)) {
-                  fprintf(stderr, "Found Recursive Return Stmt \n");
-                }
-              }
-            }
-        }
+    if (n->op->token_type != kTokenKwReturn) {
+      return false;
     }
-    return isRecursiveFunction(fn, n->right);
+    if (!n->right || !n->right->op ||
+        strncmp(n->right->op->begin, "+", n->right->op->length) != 0) {
+      return false;
+    }
+    // a + b case
+    struct Node *result_expr = n->right;
+    // Check if right operand is integer constant
+    if (!result_expr->right ||
+        !IsTokenWithType(result_expr->right->op, kTokenIntegerConstant)) {
+      return false;
+    }
+    // Check if left operand is func call
+    if (!result_expr->left || result_expr->left->type != kASTExprFuncCall) {
+      return false;
+    }
+    // Check if calling the function itself
+    struct Node *fexpr = result_expr->left->func_expr;
+    if (!IsEqualToken(fn->func_name_token, fexpr->op)) {
+      return false;
+    }
+    fprintf(stderr, "Found Recursive Return Stmt \n");
+    return true;
   }
   if (n->type == kASTList) {
     for (int l = 0; l < GetSizeOfList(n); l++) {
       struct Node *stmt = GetNodeAt(n, l);
-      if (isRecursiveFunction(fn, stmt)) {
+      if (IsTailRecursiveFunction(fn, stmt)) {
         return true;
       }
     }
     return false;
   }
   if (n->type == kASTForStmt) {
-    return isRecursiveFunction(fn, n->body);
+    return IsTailRecursiveFunction(fn, n->body);
   }
   return false;
 }
@@ -204,7 +212,7 @@ void OptimizeRecursiveFunction(struct Node **fnp) {
 
   fprintf(stderr, "OptimizeRecusiveFunction %.*s %d\n",
           fn->func_name_token->length, fn->func_name_token->begin,
-          isRecursiveFunction(fn, fn->func_body));
+          IsTailRecursiveFunction(fn, fn->func_body));
 }
 
 void Optimize(struct Node **np) {

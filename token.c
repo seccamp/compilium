@@ -47,6 +47,9 @@ int IsEqualTokenWithCStr(struct Node *t, const char *s) {
 }
 
 int IsEqualToken(struct Node *t1, struct Node *t2) {
+  if (!IsToken(t1) || !IsToken(t2)) {
+    return false;
+  }
   if (t1->length != t2->length) {
     return false;
   }
