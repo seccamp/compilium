@@ -220,6 +220,12 @@ void OptimizeRecursiveFunction(struct Node **fnp) {
   struct Node *for_stmt = AllocNode(kASTForStmt);
   for_stmt->op = CreateToken("for");
   for_stmt->body = fn->func_body;
+
+  struct Node *new_fn_body = AllocList();
+  new_fn_body->op = CreateToken("{");
+  PushToList(new_fn_body, for_stmt);
+
+  fn->func_body = new_fn_body;
 }
 
 void Optimize(struct Node **np) {
