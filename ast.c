@@ -332,6 +332,7 @@ static void PrintASTNodeSub(struct Node *n, int depth) {
     fprintf(stderr, "ASTDecltor(left=");
     PrintASTNodeSub(n->left, depth);
     PrintOptionalAttr("right", n->right, depth);
+    PrintOptionalAttr("decltor_init_expr", n->decltor_init_expr, depth);
     fprintf(stderr, ")");
     return;
   }
