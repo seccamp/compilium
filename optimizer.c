@@ -223,6 +223,13 @@ void OptimizeRecursiveFunction(struct Node **fnp) {
 
   struct Node *new_fn_body = AllocList();
   new_fn_body->op = CreateToken("{");
+
+  struct Node *result_var_decl = AllocNode(kASTDecl);
+  result_var_decl->op = AllocList(); // decl spec
+  PushToList(result_var_decl->op, CreateToken("int"));
+  result_var_decl->right = CreateASTBinOp(CreateToken("="), NULL, zero_node);
+
+  PushToList(new_fn_body, result_var_decl);
   PushToList(new_fn_body, for_stmt);
 
   fn->func_body = new_fn_body;
