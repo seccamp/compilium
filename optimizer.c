@@ -215,6 +215,12 @@ void SubOptimizeRecursiveFunction(struct Node *fn, struct Node **np) {
   if (n == NULL) {
     return;
   }
+  if (n->type == kASTSelectionStmt){
+    SubOptimizeRecursiveFunction(fn, &n->if_true_stmt);
+    if (!n->if_else_stmt){
+      SubOptimizeRecursiveFunction(fn, &n->if_else_stmt);
+    }
+  }
   if (n->type == kASTExprFuncCall) {
     struct Node *fexpr = n->func_expr;
     if (fn->func_name_token->length != fexpr->op->length) {
@@ -300,6 +306,8 @@ void OptimizeRecursiveFunction(struct Node **fnp) {
   }
   fprintf(stderr, "OptimizeRecusiveFunction %.*s\n",
           fn->func_name_token->length, fn->func_name_token->begin);
+
+  SubOptimizeRecursiveFunction(fn, &fn->func_body);
 
   struct Node *for_stmt = AllocNode(kASTForStmt);
   for_stmt->op = CreateToken("for");
