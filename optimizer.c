@@ -205,6 +205,76 @@ int IsTailRecursiveFunction(struct Node *fn, struct Node *n) {
   return false;
 }
 
+// 末尾最適のASTを中身を実際にOptimizeする
+// @param fn: 親の関数のノード
+// @param n: 再帰で検索する子どものノード
+void SubOptimizeRecursiveFunction(struct Node *fn, struct Node **np) {
+  assert(fn != NULL);
+  assert(np != NULL);
+  struct Node *n = *np;
+  if (n == NULL) {
+    return;
+  }
+  if (n->type == kASTExprFuncCall) {
+    struct Node *fexpr = n->func_expr;
+    if (fn->func_name_token->length != fexpr->op->length) {
+      return;
+    }
+    if (strncmp(fn->func_name_token->begin, fexpr->op->begin,
+                fexpr->op->length) == 0) {
+      return;
+    } else {
+      return;
+    }
+  }
+  if (n->type == kASTExpr) {
+    SubOptimizeRecursiveFunction(fn, &n->left);
+    SubOptimizeRecursiveFunction(fn, &n->right);
+  }
+  if (n->type == kASTExprStmt) {
+    SubOptimizeRecursiveFunction(fn, &n->left);
+    SubOptimizeRecursiveFunction(fn, &n->right);
+  }
+  if (n->type == kASTJumpStmt) {
+    if (n->op->token_type != kTokenKwReturn) {
+      return;
+    }
+    if (!n->right || !n->right->op ||
+        strncmp(n->right->op->begin, "+", n->right->op->length) != 0) {
+      return;
+    }
+    // a + b case
+    struct Node *result_expr = n->right;
+    // Check if right operand is integer constant
+    if (!result_expr->right ||
+        !IsTokenWithType(result_expr->right->op, kTokenIntegerConstant)) {
+      return;
+    }
+    // Check if left operand is func call
+    if (!result_expr->left || result_expr->left->type != kASTExprFuncCall) {
+      return;
+    }
+    // Check if calling the function itself
+    struct Node *fexpr = result_expr->left->func_expr;
+    if (!IsEqualToken(fn->func_name_token, fexpr->op)) {
+      return;
+    }
+    fprintf(stderr, "Found Recursive Return Stmt \n");
+    return;
+  }
+  if (n->type == kASTList) {
+    for (int l = 0; l < GetSizeOfList(n); l++) {
+      struct Node *stmt = GetNodeAt(n, l);
+      SubOptimizeRecursiveFunction(fn, &stmt);
+    }
+    return;
+  }
+  if (n->type == kASTForStmt) {
+    SubOptimizeRecursiveFunction(fn, &n->body);
+  }
+  return;
+}
+
 struct Node *ParseDecl();
 static struct Node *CreateDecl(const char *s) {
   struct Node *tokens = Tokenize(s);
