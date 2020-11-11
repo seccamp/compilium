@@ -205,6 +205,14 @@ int IsTailRecursiveFunction(struct Node *fn, struct Node *n) {
   return false;
 }
 
+struct Node *ParseStmt();
+static struct Node *CreateStmt(const char *s) {
+  char* ds = strdup(s);
+  struct Node *tokens = Tokenize(ds);
+  InitParser(&tokens);
+  return ParseStmt();
+}
+
 // 末尾最適のASTを中身を実際にOptimizeする
 // @param fn: 親の関数のノード
 // @param n: 再帰で検索する子どものノード
@@ -247,8 +255,12 @@ void SubOptimizeRecursiveFunction(struct Node *fn, struct Node **np) {
     }
 
     if (n->right && n->right->op && n->right->op->token_type == kTokenIntegerConstant) {
-      n->right = AllocList();
-      PushToList(n->right, CreateStmt("_X = _X + ()"));
+      const int MAX_LEN = 256;
+      char buf[MAX_LEN];
+
+      assert(snprintf(buf, MAX_LEN, "{_X+=(%.*s);break;}", n->right->op->length, n->right->op->begin)>=0);
+      *np = CreateStmt(buf);
+      return;
     }
 
     if (!n->right || !n->right->op ||
@@ -292,13 +304,6 @@ static struct Node *CreateDecl(const char *s) {
   struct Node *tokens = Tokenize(s);
   InitParser(&tokens);
   return ParseDecl();
-}
-
-struct Node *ParseStmt();
-static struct Node *CreateStmt(const char *s) {
-  struct Node *tokens = Tokenize(s);
-  InitParser(&tokens);
-  return ParseStmt();
 }
 
 void OptimizeRecursiveFunction(struct Node **fnp) {

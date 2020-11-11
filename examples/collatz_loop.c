@@ -12,11 +12,11 @@ static int collatz(int n) {
 }
 
 static int collatz_loop(int n) {
-  int sum = 0;
+  int _X = 0;
 
-  while(1) {
+  for(;;) {
     if (n == 1) {
-      sum = sum + 1;
+      _X += 1;
       break;
     }
     if (n & 1) {
@@ -25,9 +25,9 @@ static int collatz_loop(int n) {
       n /= 2;
     }
     n = n;
-    sum = sum + 1;
+    _X = _X + 1;
   }
-  return sum;
+  return _X;
 }
 
 int main() {
