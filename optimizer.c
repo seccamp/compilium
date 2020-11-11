@@ -205,7 +205,14 @@ int IsTailRecursiveFunction(struct Node *fn, struct Node *n) {
   return false;
 }
 
-struct Node *ParseStmt() ;
+struct Node *ParseDecl();
+static struct Node *CreateDecl(const char *s) {
+  struct Node *tokens = Tokenize(s);
+  InitParser(&tokens);
+  return ParseDecl();
+}
+
+struct Node *ParseStmt();
 static struct Node *CreateStmt(const char *s) {
   struct Node *tokens = Tokenize(s);
   InitParser(&tokens);
@@ -231,11 +238,9 @@ void OptimizeRecursiveFunction(struct Node **fnp) {
   struct Node *new_fn_body = AllocList();
   new_fn_body->op = CreateToken("{");
 
-  struct Node *result_var_decl = CreateStmt("{int _X = 0;}");
-  PrintASTNode(result_var_decl);
-
-  PushToList(new_fn_body, result_var_decl);
+  PushToList(new_fn_body, CreateDecl("int _X = 0;"));
   PushToList(new_fn_body, for_stmt);
+  PushToList(new_fn_body, CreateStmt("return _X;"));
 
   fn->func_body = new_fn_body;
 }
