@@ -283,6 +283,15 @@ void SubOptimizeRecursiveFunction(struct Node *fn, struct Node **np) {
     if (!IsEqualToken(fn->func_name_token, fexpr->op)) {
       return;
     }
+
+    if(GetSizeOfList(fn->func_type->right) != 1) {
+      return;
+    }
+    
+    fprintf(stderr, "Arguments of callee RecursiveFunction\n");
+    PrintASTNode(fn->func_type->right->nodes[0]->left);
+    
+
     fprintf(stderr, "Found Recursive Return Stmt \n");
     return;
   }
