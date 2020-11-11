@@ -245,6 +245,12 @@ void SubOptimizeRecursiveFunction(struct Node *fn, struct Node **np) {
     if (n->op->token_type != kTokenKwReturn) {
       return;
     }
+
+    if (n->right && n->right->op && n->right->op->token_type == kTokenIntegerConstant) {
+      n->right = AllocList();
+      PushToList(n->right, CreateStmt("_X = _X + ()"));
+    }
+
     if (!n->right || !n->right->op ||
         strncmp(n->right->op->begin, "+", n->right->op->length) != 0) {
       return;
