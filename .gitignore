@@ -69,3 +69,5 @@ expected.*
 out.*
 testinput.c
 *.bin
+
+.vscode

@@ -2,6 +2,14 @@ default : calc.bin ctests.bin gameoflife.bin hello.bin pi.bin fib.bin
 
 .FORCE : 
 
+compare : kadai.old.bin kadai.bin
+	bash -c "time ./kadai.old.bin > /dev/null"
+	bash -c "time ./kadai.bin > /dev/null"
+
+compare2 : kadai2.old.bin kadai2.bin
+	bash -c "time ./kadai2.old.bin > /dev/null"
+	bash -c "time ./kadai2.bin > /dev/null"
+
 run_ctests : ctests.bin ../compilium
 	make run_ctests_hostcc
 	./ctests.bin
@@ -41,6 +49,14 @@ debug_% : ../compilium_dbg %.c
 
 %.S : %.c Makefile ../compilium .FORCE
 	../compilium --target-os `uname` -I ../include/ < $*.c > $*.S
+
+.PRECIOUS : kadai.old.S kadai.S kadai2.old.S kadai2.S
+
+%.old.S : %.c Makefile .FORCE
+	../compilium.old --target-os `uname` -I ../include/ < $*.c > $*.old.S
+
+%.old.bin : %.old.S Makefile
+	$(CC) -o $@ $*.old.S
 
 format:
 	clang-format -i *.c
