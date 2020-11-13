@@ -38,9 +38,15 @@ debug_% : ../compilium_dbg %.c
 
 %.host.S : %.c Makefile ../compilium .FORCE
 	$(CC) -S -o $@ $*.c
+	
+%.o0.S : %.c Makefile ../compilium .FORCE
+	../compilium -O0 --target-os `uname` -I ../include/ < $*.c > $*.o0.S
 
 %.S : %.c Makefile ../compilium .FORCE
 	../compilium --target-os `uname` -I ../include/ < $*.c > $*.S
+
+%.o0.bin : %.o0.S Makefile
+	$(CC) -o $@ $*.o0.S
 
 format:
 	clang-format -i *.c
