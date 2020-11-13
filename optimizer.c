@@ -303,15 +303,16 @@ void SubOptimizeRecursiveFunction(struct Node *fn, struct Node **np) {
     char buf[MAX_LEN];
     
     // n=n;
-    assert(snprintf(buf, MAX_LEN, "{(%.*s) = (%.*s);}", 
+    assert(snprintf(buf, MAX_LEN, "{(%.*s) = (%.*s); _X += (%.*s);}",
           fn->func_type->right->nodes[0]->left->length, fn->func_type->right->nodes[0]->left->begin,
-          call_expr_list->nodes[0]->op->length, call_expr_list->nodes[0]->op->begin
+          call_expr_list->nodes[0]->op->length, call_expr_list->nodes[0]->op->begin,
+          result_expr->right->op->length, result_expr->right->op->begin
     )>=0);
     fprintf(stderr, "%s\n", buf);
     // _X += 1;
     
     *np = CreateStmt(buf);
-    
+    PrintASTNode(*np);
     return;
   }
   if (n->type == kASTList) {
