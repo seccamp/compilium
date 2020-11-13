@@ -137,6 +137,12 @@ struct Node *GetNodeAt(struct Node *list, int index) {
   return list->nodes[index];
 }
 
+struct Node **GetNodeReferenceAt(struct Node *list, int index) {
+  assert(list && list->type == kASTList);
+  assert(0 <= index && index < list->size);
+  return &(list->nodes[index]);
+}
+
 struct Node *GetNodeByTokenKey(struct Node *list, struct Node *key) {
   assert(list && list->type == kASTList);
   for (int i = 0; i < list->size; i++) {

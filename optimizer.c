@@ -317,8 +317,8 @@ void SubOptimizeRecursiveFunction(struct Node *fn, struct Node **np) {
   }
   if (n->type == kASTList) {
     for (int l = 0; l < GetSizeOfList(n); l++) {
-      struct Node *stmt = GetNodeAt(n, l);
-      SubOptimizeRecursiveFunction(fn, &stmt);
+      struct Node **stmt = GetNodeReferenceAt(n, l);
+      SubOptimizeRecursiveFunction(fn, stmt);
     }
     return;
   }

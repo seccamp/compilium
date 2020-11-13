@@ -155,6 +155,7 @@ void PushKeyValueToList(struct Node *list, const char *key, struct Node *value);
 struct Node *AllocList();
 int GetSizeOfList(struct Node *list);
 struct Node *GetNodeAt(struct Node *list, int index);
+struct Node **GetNodeReferenceAt(struct Node *list, int index);
 struct Node *GetNodeByTokenKey(struct Node *list, struct Node *key);
 
 extern const char *symbol_prefix;
