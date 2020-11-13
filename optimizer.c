@@ -290,7 +290,8 @@ void SubOptimizeRecursiveFunction(struct Node *fn, struct Node **np) {
     
     fprintf(stderr, "Arguments of callee RecursiveFunction\n");
     PrintASTNode(fn->func_type->right->nodes[0]->left);
-    
+    assert(fn->func_type->right->nodes[0]->left != NULL);
+    // fprintf(stderr, "The arguments is {%.*s}", fn->func_type->right->nodes[0]->left->length, fn->func_type->right->nodes[0]->left->begin);
 
     fprintf(stderr, "Found Recursive Return Stmt \n");
     return;
@@ -320,6 +321,10 @@ void OptimizeRecursiveFunction(struct Node **fnp) {
   struct Node *fn = *fnp;
   assert(fn != NULL);
   assert(fn->type == kASTFuncDef);
+
+  if (GetSizeOfList(fn->func_type->right->nodes) != 1) {
+    return;
+  }
 
   if (!IsTailRecursiveFunction(fn, fn->func_body)) {
     return;
