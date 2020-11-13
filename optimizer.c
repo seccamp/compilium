@@ -296,8 +296,22 @@ void SubOptimizeRecursiveFunction(struct Node *fn, struct Node **np) {
 
     fprintf(stderr, "The arguments is {%.*s}\n", fn->func_type->right->nodes[0]->left->length, fn->func_type->right->nodes[0]->left->begin);
     fprintf(stderr, "Call arguments is {%.*s}\n", call_expr_list->nodes[0]->op->length, call_expr_list->nodes[0]->op->begin);
-
-    fprintf(stderr, "Found Recursive Return Stmt \n");
+    
+    fprintf(stderr, "r: {%.*s}\n",  result_expr->right->op->length, result_expr->right->op->begin);
+    
+    const int MAX_LEN = 256;
+    char buf[MAX_LEN];
+    
+    // n=n;
+    assert(snprintf(buf, MAX_LEN, "{(%.*s) = (%.*s);}", 
+          fn->func_type->right->nodes[0]->left->length, fn->func_type->right->nodes[0]->left->begin,
+          call_expr_list->nodes[0]->op->length, call_expr_list->nodes[0]->op->begin
+    )>=0);
+    fprintf(stderr, "%s\n", buf);
+    // _X += 1;
+    
+    *np = CreateStmt(buf);
+    
     return;
   }
   if (n->type == kASTList) {
