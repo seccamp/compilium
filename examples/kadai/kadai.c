@@ -18,7 +18,12 @@ Example: 910
 
 #include <stdio.h>
 void to_lcd(int n){
+    char buf[12];
+    snprintf(buf, 12, "%d", n);
     char lcd[3][30];
+    for (char* p = buf; *p != 0; p++){
+
+    }
 
 }
 
