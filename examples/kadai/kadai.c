@@ -17,7 +17,8 @@ Example: 910
 */
 
 #include <stdio.h>
-int to_lcd(int n){
+void to_lcd(int n){
+    char lcd[3][30];
 
 }
 
